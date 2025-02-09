@@ -1,0 +1,18 @@
+# Python 相关
+__pycache__/
+*.pyc
+*.pyo
+*.log
+
+# Virtual Environment
+.venv/
+env/
+
+# SQLite 数据库
+*.sqlite
+*.db
+
+# IDE 相关（避免提交个人 IDE 配置）
+.vscode/
+.idea/
+
