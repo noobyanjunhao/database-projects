@@ -1,0 +1,26 @@
+body {
+    background-color: #f8f9fa;
+}
+
+h2 {
+    color: #343a40;
+}
+
+.input-group {
+    max-width: 500px;
+    margin: auto;
+}
+
+.table {
+    margin-top: 20px;
+}
+
+.table th, .table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.btn-outline-secondary {
+    margin: 5px;
+}
+
