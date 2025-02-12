@@ -12,8 +12,7 @@
             <!-- 搜索框 -->
             <div class="col-md-6">
                 <div class="input-group">
-                    <input type="text" name="search" class="form-control" placeholder="Enter the product name"
-                           value="{{ request.args.get('search', '') }}">
+			<input type="text" name="search" class="form-control" placeholder="Enter the product name" value="{{ request.args.get('search', '') }}">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </div>
             </div>
