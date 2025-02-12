@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}电子商务网站{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <h1>TJ's</h1>
+        <nav>
+            <ul>
+                <li><a href="{{ url_for('products.list_products') }}">Home</a></li>
+		<li><a href="#">Cart</a></li>
+                <li><a href="#">Orders</a></li>
+                <li><a href="#">Log In</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>© TJ's Shopping Website</p>
+    </footer>
+
+</body>
+</html>
+

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}商品列表{% endblock %}
+
+{% block content %}
+<h2>商品列表</h2>
+
+<!-- 🔍 搜索框 -->
+<form method="get" action="{{ url_for('products.list_products') }}">
+    <input type="text" name="search" placeholder="输入商品名称..." value="{{ request.args.get('search', '') }}">
+    <button type="submit">🔍 搜索</button>
+</form>
+
+<!-- 📂 按类别筛选 -->
+<h3>按类别浏览</h3>
+<ul>
+    {% for category in range(1, 10) %}
+        <li>
+            <a href="{{ url_for('products.list_products', category=category) }}">
+                分类 {{ category }}
+            </a>
+        </li>
+    {% endfor %}
+</ul>
+
+<!-- 显示商品列表 -->
+{% if products %}
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>商品名称</th>
+            <th>价格</th>
+            <th>类别</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product["ProductID"] }}</td>
+            <td>{{ product["ProductName"] }}</td>
+            <td>${{ product["UnitPrice"] }}</td>
+            <td>{{ product["CategoryID"] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>⚠️ 没有找到匹配的商品。</p>
+{% endif %}
+
+{% endblock %}
+
