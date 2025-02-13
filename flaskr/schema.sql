@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS authentication (
+    UserID TEXT PRIMARY KEY,
+    PasswordHash TEXT NOT NULL,
+    SessionID TEXT
+);
+
+
+
+CREATE TABLE IF NOT EXISTS shopping_cart (
+    ShopperID TEXT PRIMARY KEY,
+    ProductID INTEGER NOT NULL,
+    Quantity INTEGER NOT NULL DEFAULT 1,
+    AddedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+);
