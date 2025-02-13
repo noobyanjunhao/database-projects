@@ -31,5 +31,8 @@ def create_app(test_config=None) -> Flask:
     from .products import products_bp
     app.register_blueprint(products_bp)
 
+    from . import user
+    app.register_blueprint(user.bp)
+
     return app
 

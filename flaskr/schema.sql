@@ -1,4 +1,5 @@
-CREATE TABLE IF NOT EXISTS authentication (
+
+CREATE TABLE IF NOT EXISTS Authentication (
     UserID TEXT PRIMARY KEY,
     PasswordHash TEXT NOT NULL,
     SessionID TEXT
@@ -6,7 +7,7 @@ CREATE TABLE IF NOT EXISTS authentication (
 
 
 
-CREATE TABLE IF NOT EXISTS shopping_cart (
+CREATE TABLE IF NOT EXISTS Shopping_cart (
     ShopperID TEXT PRIMARY KEY,
     ProductID INTEGER NOT NULL,
     Quantity INTEGER NOT NULL DEFAULT 1,
