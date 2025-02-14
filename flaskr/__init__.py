@@ -36,3 +36,5 @@ def create_app(test_config=None) -> Flask:
 
     return app
 
+    from flaskr.cart import cart_bp
+    app.register_blueprint(cart_bp)
