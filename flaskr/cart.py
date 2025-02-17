@@ -12,6 +12,7 @@ def view_cart():
 
     cart_id = session['cart_id']
 
+    print("session ID is: ", cart_id)
     db = get_db()
     rows = db.execute("""SELECT ProductID, Quantity, AddedAt FROM shopping_cart WHERE ShopperID= ?""", (cart_id)).fetchall()
     items = [{'product_id': row['ProductID'], 'quantity': row['Quantity'], 'timestamp': row['AddedAt']} for row in rows]
