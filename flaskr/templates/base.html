@@ -17,8 +17,14 @@
                 <li><a href="{{ url_for('products.list_products') }}">Home</a></li>
                 <li><a href="{{ url_for('cart.view_cart') }}">Cart</a></li>
                 <li><a href="#">Orders</a></li>
-                <li><a href="{{ url_for('user.register') }}">Register</a>
-                <li><a href="{{ url_for('user.login') }}">Log In</a></li>
+
+                <!-- Show Logout if user is logged in, otherwise show Register/Login -->
+                {% if g.user %}
+                    <li><a href="{{ url_for('user.logout') }}">Log Out</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('user.register') }}">Register</a></li>
+                    <li><a href="{{ url_for('user.login') }}">Log In</a></li>
+                {% endif %}
             </ul>
         </nav>
     </header>
@@ -33,4 +39,3 @@
 
 </body>
 </html>
-

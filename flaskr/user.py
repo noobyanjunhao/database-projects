@@ -130,15 +130,12 @@ def load_logged_in_user():
 
 @bp.route('/logout')
 def logout():
-    user_id = session.get('user_id')
-    if user_id:
-        db = get_db()
-        db.execute(
-            'UPDATE Authentication SET SessionID = NULL WHERE UserID = ?',
-            (user_id,)
-        )
-        db.commit()
+    # Clear the entire Flask session
     session.clear()
+    import secrets
+    session['session_id'] = secrets.token_hex(16)
+    
+    # Redirect to the home page (or wherever you want after logout)
     return redirect(url_for('products.list_products'))
 
 

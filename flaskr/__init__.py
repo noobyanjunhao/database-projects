@@ -27,10 +27,10 @@ def create_app(test_config=None) -> Flask:
         # 1. Check if session_id is present in the Flask session
         # 2. If not, create one
         from flask import session
-        import uuid
+        import secrets
 
         if 'session_id' not in session:
-            session['session_id'] = str(uuid.uuid4())
+            session['session_id'] = secrets.token_hex(16)
 
     @app.route("/hello")
     def hello() -> str:

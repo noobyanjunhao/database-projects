@@ -18,6 +18,6 @@ CREATE TABLE IF NOT EXISTS Shopping_cart (
 );
 
 -- Adds a new employee whose ID is 999999, first and last names are "WEB"
--- This employee is used to represent the web application itself
-INSERT OR IGNORE INTO Employees (EmployeeID, LastName, FirstName)
-VALUES (999999, "WEB", "WEB");
+-- -- This employee is used to represent the web application itself
+-- INSERT OR IGNORE INTO Employees (EmployeeID, LastName, FirstName)
+-- VALUES (999999, "WEB", "WEB");
