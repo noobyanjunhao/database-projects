@@ -4,11 +4,6 @@
 
   <p>Please confirm your order. (Typically you'd show cart summary or shipping address here.)</p>
   
-  <!-- The user can place the order or cancel back to the cart -->
-  <form action="" method="POST">
-    <!-- "place_order" is the name your code checks with request.form.get('place_order') -->
-    <button type="submit" name="place_order" value="yes">Place Order</button>
-  </form>
 
   <br>
   <a href="{{ url_for('cart.view_cart') }}">Cancel and Return to Cart</a>
@@ -51,10 +46,6 @@
     </select>
     <br><br>
 
-    <!-- 
-      The "place_order" is the field your code checks 
-      (request.form.get('place_order')) to confirm the user wants to finalize 
-    -->
     <button type="submit" name="place_order" value="true">Place Order</button>
   </form>
 

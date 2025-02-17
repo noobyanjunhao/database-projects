@@ -68,10 +68,10 @@ def checkout():
         cart_id = session.get('cart_id')
         if not cart_id:
             # No cart found, redirect to cart view
+            print("No cart found, redirect to cart view")
             return redirect(url_for('cart.view_cart'))
 
         db = get_db()
-        error = None
 
         # Check if user is logged in by retrieving user ID
         user_row = db.execute(
@@ -97,56 +97,32 @@ def checkout():
             ship_country = request.form['ship_country']
             ship_via = request.form.get('ship_via', 1)  # default to 1 for "Standard"
 
-            try:
-                # Insert a new order and get the OrderID
-                cursor = db.execute("""
-                    INSERT INTO Orders (
-                        CustomerID,
-                        EmployeeID,
-                        OrderDate,
-                        RequiredDate,
-                        ShippedDate,
-                        ShipVia,
-                        Freight,
-                        ShipName,
-                        ShipAddress,
-                        ShipCity,
-                        ShipRegion,
-                        ShipPostalCode,
-                        ShipCountry
-                    )
-                    VALUES (
-                        ?,          -- CustomerID
-                        999999,    -- EmployeeID for WEB user
-                        CURRENT_TIMESTAMP,  -- OrderDate
-                        NULL,      -- RequiredDate (or some date offset, if desired)
-                        NULL,      -- ShippedDate
-                        1,         -- ShipVia (placeholder)
-                        0,         -- Freight (placeholder)
-                        NULL,      -- ShipName
-                        NULL,      -- ShipAddress
-                        NULL,      -- ShipCity
-                        NULL,      -- ShipRegion
-                        NULL,      -- ShipPostalCode
-                        NULL       -- ShipCountry
-                    )
-                """, (user_id,))
-                order_id = cursor.lastrowid
+            cursor = db.execute("""
+                INSERT INTO Orders (
+                    CustomerID, EmployeeID, OrderDate, RequiredDate, ShippedDate, 
+                    ShipVia, Freight, ShipName, ShipAddress, ShipCity, 
+                    ShipRegion, ShipPostalCode, ShipCountry
+                )
+                VALUES (?, ?, CURRENT_TIMESTAMP, NULL, NULL, ?, 0, ?, ?, ?, ?, ?, ?)
+            """, (
+                user_id, 999999, ship_via, ship_name, ship_address, 
+                ship_city, ship_region, ship_postal_code, ship_country
+            ))
 
-                # Clear the cart
-                db.execute("DELETE FROM Shopping_Cart WHERE ShopperID = ?", (cart_id,))
+            db.commit()
 
-                # Clean up old cart entries (older than a month)
-                db.execute("DELETE FROM Shopping_Cart WHERE AddedAt < datetime('now', '-1 month')")
+            order_id = cursor.lastrowid  # Get the OrderID from the inserted order
 
-                db.commit()
-            except Exception as e:
-                db.rollback()
-                error = "An error occurred during checkout. Please try again."
-                flash(error)
-                return redirect(url_for('cart.view_cart'))
+            # Clear the cart
+            db.execute("DELETE FROM Shopping_Cart WHERE ShopperID = ?", (cart_id,))
+            db.commit()
 
-            # Redirect to orders page after checkout
+            # Clean up old cart entries
+            db.execute("DELETE FROM Shopping_Cart WHERE AddedAt < datetime('now', '-1 month')")
+            db.commit()
+
+            flash("Order placed successfully, thank you!")
+
             return redirect(url_for('orders.view_orders'))
         else:
             # User decided not to place an order, redirect back to cart
