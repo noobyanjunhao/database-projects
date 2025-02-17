@@ -45,7 +45,7 @@ def add_to_cart():
     """, (cart_id, product_id, quantity))
     db.commit()
 
-    return redirect(url_for('cart.view_cart'))
+    return {"status": "success", "message": "Item added to cart"}, 200
 
 @cart_bp.route('remove/', methods=['POST'])
 def remove_from_cart():
