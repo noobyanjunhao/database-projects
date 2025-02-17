@@ -6,6 +6,7 @@
   {% if items %}
     <table border="1" cellpadding="8" cellspacing="0">
       <tr>
+        <th>Row ID</th>
         <th>Product ID</th>
         <th>Quantity</th>
         <th>Added At</th>
@@ -13,13 +14,14 @@
       </tr>
       {% for item in items %}
         <tr>
+          <td>{{ item.id }}</td>
           <td>{{ item.product_id }}</td>
           <td>{{ item.quantity }}</td>
           <td>{{ item.timestamp }}</td>
           <td>
-            <!-- Remove form: posts to /cart/remove/ -->
+            <!-- Remove form: posts to /cart/remove/ by ID -->
             <form action="{{ url_for('cart.remove_from_cart') }}" method="POST" style="display:inline;">
-              <input type="hidden" name="product_id" value="{{ item.product_id }}">
+              <input type="hidden" name="row_id" value="{{ item.id }}">
               <button type="submit">Remove</button>
             </form>
           </td>

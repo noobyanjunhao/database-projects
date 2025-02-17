@@ -5,60 +5,74 @@ import secrets
 cart_bp = Blueprint('cart', __name__, url_prefix = '/cart')
 @cart_bp.route('/')
 def view_cart():
-    """show all item in cart during the user's session"""
+    """Show all items in this shopper's cart."""
     if 'cart_id' not in session:
-        #if no cart id, create one 
+        # If no cart_id, create one 
         session['cart_id'] = secrets.token_hex(16)
 
     cart_id = session['cart_id']
-
-    print("session ID is: ", cart_id)
     db = get_db()
-    rows = db.execute("""SELECT ProductID, Quantity, AddedAt FROM Shopping_cart WHERE ShopperID= ?""", (cart_id,)).fetchall()
-    items = [{'product_id': row['ProductID'], 'quantity': row['Quantity'], 'timestamp': row['AddedAt']} for row in rows]
 
-    return render_template('cart/cart_html.html', items = items) #you may change template route here
+    # Retrieve multiple rows for the same ShopperID
+    rows = db.execute("""
+        SELECT ID, ProductID, Quantity, AddedAt 
+        FROM Shopping_cart 
+        WHERE ShopperID = ?
+    """, (cart_id,)).fetchall()
 
-@cart_bp.route('add/', methods = ['POST'])
+    items = []
+    for row in rows:
+        items.append({
+            'id': row['ID'],  # Added 'id' to track each cart item uniquely
+            'product_id': row['ProductID'],
+            'quantity': row['Quantity'],
+            'timestamp': row['AddedAt']
+        })
+
+    return render_template('cart/cart_html.html', items=items)
+
+@cart_bp.route('add/', methods=['POST'])
 def add_to_cart():
-    """add item to cart or update quantity"""
+    """Add a new row to the cart for each 'Add' action."""
     if 'cart_id' not in session:
         session['cart_id'] = secrets.token_hex(16)
     
     cart_id = session['cart_id']
     product_id = request.form['product_id']
-    quantity = int(request.form.get('quantity', 1)) #This set quantity to 1 if not provided  
+    quantity = int(request.form.get('quantity', 1))  # Default 1 if none provided
     
     db = get_db()
-    db.execute("""INSERT OR REPLACE INTO shopping_cart (ShopperID, ProductID, Quantity, AddedAt) 
-                VALUES (
-                :ShopperID, 
-                :ProductID, 
-                COALESCE((SELECT Quantity FROM Shopping_cart WHERE ShopperID = :ShopperID AND ProductID = :ProductID), 0) + :Quantity, 
-                CURRENT_TIMESTAMP
-                )""", 
-                {'ShopperID': cart_id, 'ProductID': product_id, 'Quantity': quantity})
+    # Simple INSERT (no OR REPLACE) => each add creates a separate row
+    db.execute("""
+        INSERT INTO Shopping_cart (ShopperID, ProductID, Quantity, AddedAt)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+    """, (cart_id, product_id, quantity))
     db.commit()
 
     return redirect(url_for('cart.view_cart'))
 
-@cart_bp.route('remove/', methods = ['POST'])
+@cart_bp.route('remove/', methods=['POST'])
 def remove_from_cart():
-    """remove item from cart"""
+    """Remove a single row from the cart by its ID."""
     if 'cart_id' not in session:
-        #if no cart, no need to remove item
         return redirect(url_for('cart.view_cart'))
+
     cart_id = session['cart_id']
-    product_id = request.form['product_id']
+    row_id = request.form['row_id']  # We'll pass in the ID of the cart row to remove
+
     db = get_db()
-    db.execute("""DELETE FROM Shopping_cart 
-                WHERE ShopperID = ? AND ProductID = ?""", (cart_id, product_id))
+    # Delete only the row that matches both the ID and the ShopperID
+    db.execute("""
+        DELETE FROM Shopping_cart 
+        WHERE ID = ? AND ShopperID = ?
+    """, (row_id, cart_id))
     db.commit()
+
     return redirect(url_for('cart.view_cart'))
 
 @cart_bp.route('checkout/', methods=['GET', 'POST'])
 def checkout():
-    """checkout the cart"""
+    """Checkout the cart."""
     if request.method == 'POST':
         # Ensure the user is logged in by checking the session
         if 'user_id' not in session or 'session_id' not in session:
@@ -113,17 +127,22 @@ def checkout():
 
             order_id = cursor.lastrowid  # Get the OrderID from the inserted order
 
-            # Clear the cart
-            db.execute("DELETE FROM Shopping_Cart WHERE ShopperID = ?", (cart_id,))
-            db.commit()
+            try:
+                # Clear the cart
+                db.execute("DELETE FROM Shopping_Cart WHERE ShopperID = ?", (cart_id,))
+                db.commit()
 
-            # Clean up old cart entries
-            db.execute("DELETE FROM Shopping_Cart WHERE AddedAt < datetime('now', '-1 month')")
-            db.commit()
+                # Clean up old cart entries
+                db.execute("DELETE FROM Shopping_Cart WHERE AddedAt < datetime('now', '-1 month')")
+                db.commit()
 
-            flash("Order placed successfully, thank you!")
+                flash("Order placed successfully, thank you!")
 
-            return redirect(url_for('orders.view_orders'))
+                return redirect(url_for('orders.view_orders'))
+            except Exception as e:
+                db.rollback()
+                flash(f"An error occurred during checkout: {e}")
+                return redirect(url_for('cart.view_cart'))
         else:
             # User decided not to place an order, redirect back to cart
             return redirect(url_for('cart.view_cart'))
