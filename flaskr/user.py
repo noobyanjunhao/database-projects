@@ -82,20 +82,33 @@ def login():
 
         if error is None:
             # Credentials are valid.
-            session.clear()
-            new_session_id = str(uuid.uuid4())
+            # Retrieve the old session ID from the Authentication table.
+            old_session_id = user['SessionID']
+            # Clear the current session.
+            # Generate a new session ID.
+            new_session_id = session['session_id']
+            # Store new session info in Flask's session object.
             session['user_id'] = username
-            session['session_id'] = new_session_id
-            db.execute(
-                'UPDATE Authentication SET SessionID = ? WHERE UserID = ?',
-                (new_session_id, username)
-            )
+
+            # Compare the old and new session IDs.
+            if old_session_id != new_session_id:
+                # Update any Shopping_cart rows that are associated with the old session ID.
+                db.execute(
+                    'UPDATE Shopping_cart SET SessionID = ? WHERE SessionID = ?',
+                    (new_session_id, old_session_id)
+                )
+                # Update the Authentication table with the new session ID.
+                db.execute(
+                    'UPDATE Authentication SET SessionID = ? WHERE UserID = ?',
+                    (new_session_id, username)
+                )
             db.commit()
             return redirect(url_for('products.list_products'))
 
         flash(error)
 
     return render_template('user/login.html')
+
 
 
 @bp.before_app_request

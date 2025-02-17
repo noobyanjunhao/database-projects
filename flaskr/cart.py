@@ -1,5 +1,5 @@
 from flask import Blueprint, request, session, redirect, url_for, render_template, flash
-from flask.db import get_db
+from db import get_db
 import secrets
 
 cart_bp = Blueprint('cart', __name__, url_prefix = '/cart')

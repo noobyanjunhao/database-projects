@@ -22,6 +22,16 @@ def create_app(test_config=None) -> Flask:
     except OSError:
         pass
 
+    @app.before_request
+    def ensure_session_id():
+        # 1. Check if session_id is present in the Flask session
+        # 2. If not, create one
+        from flask import session
+        import uuid
+
+        if 'session_id' not in session:
+            session['session_id'] = str(uuid.uuid4())
+
     @app.route("/hello")
     def hello() -> str:
         return "Hello, World!"
@@ -33,6 +43,8 @@ def create_app(test_config=None) -> Flask:
 
     from . import user
     app.register_blueprint(user.bp)
+
+
 
     return app
 
