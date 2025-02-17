@@ -11,9 +11,11 @@ bp = Blueprint('user', __name__, url_prefix='/user')
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
+    # Get the prefilled username if provided (from a login redirect)
+    prefill_username = request.args.get('username', '')
     if request.method == 'POST':
-        # Convert username to uppercase for consistency.
-        username = request.form['username'].strip().upper()
+        # Use the username from the form, falling back to the prefill if necessary.
+        username = request.form.get('username', prefill_username).strip().upper()
         password = request.form['password']
         db = get_db()
         error = None
@@ -51,7 +53,7 @@ def register():
 
         flash(error)
 
-    return render_template('user/register.html')
+    return render_template('user/register.html', prefill_username=prefill_username)
 
 
 @bp.route('/login', methods=('GET', 'POST'))
@@ -69,35 +71,38 @@ def login():
             error = "Password is required."
 
         if error is None:
-            # Look up the user by UserID (which is stored in uppercase).
+            # Look up the user by UserID (which is stored in uppercase) in the Authentication table.
             user = db.execute(
                 'SELECT * FROM Authentication WHERE UserID = ?',
                 (username,)
             ).fetchone()
 
             if user is None:
-                error = "Username not found, please make sure username is correct or register."
+                # If not found in Authentication, check the Customers table.
+                customer = db.execute(
+                    'SELECT * FROM Customers WHERE CustomerID = ?',
+                    (username,)
+                ).fetchone()
+                if customer is not None:
+                    flash("Username exists but has not finished registering, please create a password and register.")
+                    # Redirect to register page with the username prefilled.
+                    return redirect(url_for("user.register", username=username))
+                else:
+                    error = "Username not found, please make sure username is correct or register."
             elif not check_password_hash(user['PasswordHash'], password):
-                error = "Password incorrect, please try again or register."
+                error = "Password incorrect, please try again."
 
         if error is None:
             # Credentials are valid.
-            # Retrieve the old session ID from the Authentication table.
             old_session_id = user['SessionID']
-            # Clear the current session.
-            # Generate a new session ID.
             new_session_id = session['session_id']
-            # Store new session info in Flask's session object.
             session['user_id'] = username
 
-            # Compare the old and new session IDs.
             if old_session_id != new_session_id:
-                # Update any Shopping_cart rows that are associated with the old session ID.
                 db.execute(
                     'UPDATE Shopping_cart SET ShopperID = ? WHERE ShopperID = ?',
                     (new_session_id, old_session_id)
                 )
-                # Update the Authentication table with the new session ID.
                 db.execute(
                     'UPDATE Authentication SET SessionID = ? WHERE UserID = ?',
                     (new_session_id, username)
@@ -108,7 +113,6 @@ def login():
         flash(error)
 
     return render_template('user/login.html')
-
 
 
 @bp.before_app_request
