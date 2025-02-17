@@ -34,17 +34,35 @@ def add_to_cart():
     """Add a new row to the cart for each 'Add' action."""
     
     
+    """Add a product to the cart, or increase the quantity if it already exists."""
     cart_id = session['session_id']
     product_id = request.form['product_id']
-    quantity = int(request.form.get('quantity', 1))  # Default to 1 if not provided
+    added_quantity = int(request.form.get('quantity', 1))  # Default to 1 if not provided
     
     db = get_db()
-    db.execute("""
-        INSERT INTO Shopping_cart (ShopperID, ProductID, Quantity, AddedAt)
-        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-    """, (cart_id, product_id, quantity))
+    
+    db = get_db()
+    existing_item = db.execute("""
+        SELECT Quantity FROM Shopping_cart 
+        WHERE ShopperID = ? AND ProductID = ?
+    """, (cart_id, product_id)).fetchone()
+    
+    if existing_item:
+        # Increase the quantity by the added amount
+        new_quantity = existing_item['Quantity'] + added_quantity
+        db.execute("""
+            UPDATE Shopping_cart 
+            SET Quantity = ?, AddedAt = CURRENT_TIMESTAMP 
+            WHERE ShopperID = ? AND ProductID = ?
+        """, (new_quantity, cart_id, product_id))
+    else:
+        # Insert a new row for the product
+        db.execute("""
+            INSERT INTO Shopping_cart (ShopperID, ProductID, Quantity, AddedAt)
+            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        """, (cart_id, product_id, added_quantity))
+    
     db.commit()
-
     return {"status": "success", "message": "Item added to cart"}, 200
 
 @cart_bp.route('remove/', methods=['POST'])
