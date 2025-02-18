@@ -98,6 +98,15 @@ def checkout():
 
         db = get_db()
 
+            # 检查购物车是否为空
+        cart_items = db.execute("""
+            SELECT COUNT(*) as count FROM Shopping_cart WHERE ShopperID = ?
+        """, (cart_id,)).fetchone()
+
+        if cart_items['count'] == 0:
+            flash("Your shopping cart is empty. Please add items before checkout.", "danger")
+            return redirect(url_for('cart.view_cart'))  # 购物车为空，返回购物车页面
+
         # Verify that the user is logged in using their session_id.
         user_row = db.execute(
             "SELECT UserID FROM Authentication WHERE UserID = ? AND SessionID = ?",

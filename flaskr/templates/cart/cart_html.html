@@ -1,39 +1,67 @@
 {% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
 {% block content %}
-  <h1>Your Shopping Cart</h1>
+<div class="container mt-4">
+    <h2 class="text-center">Your Shopping Cart</h2>
 
-  <!-- If there are items, display them in a table -->
-  {% if items %}
-    <table border="1" cellpadding="8" cellspacing="0">
-      <tr>
-        <th>Row ID</th>
-        <th>Product ID</th>
-        <th>Quantity</th>
-        <th>Added At</th>
-        <th>Remove</th>
-      </tr>
-      {% for item in items %}
-        <tr>
-          <td>{{ item.id }}</td>
-          <td>{{ item.product_id }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.timestamp }}</td>
-          <td>
-            <!-- Remove form: posts to /cart/remove/ by ID -->
-            <form action="{{ url_for('cart.remove_from_cart') }}" method="POST" style="display:inline;">
-              <input type="hidden" name="row_id" value="{{ item.id }}">
-              <button type="submit">Remove</button>
-            </form>
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
-  {% else %}
-    <p>Your cart is empty.</p>
-  {% endif %}
-  <hr>
+    <!-- 显示 Flash 消息（例如：购物车为空时的警告） -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
-  <!-- Link or button to proceed to checkout -->
-  <a href="{{ url_for('cart.checkout') }}">Proceed to Checkout</a>
+    <!-- 购物车表格 -->
+    {% if items %}
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Row ID</th>
+                    <th>Product ID</th>
+                    <th>Quantity</th>
+                    <th>Added At</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.product_id }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.timestamp }}</td>
+                    <td>
+                        <!-- Remove form: posts to /cart/remove/ by ID -->
+                        <form action="{{ url_for('cart.remove_from_cart') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="row_id" value="{{ item.id }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
+    <!-- Checkout 按钮 -->
+    <div class="text-center mt-4">
+        <a href="{{ url_for('cart.checkout') }}" class="btn btn-success btn-lg">Proceed to Checkout</a>
+    </div>
+
+    {% else %}
+    <!-- 购物车为空时显示 -->
+    <p class="text-muted text-center">Your cart is empty.</p>
+    {% endif %}
+</div>
 {% endblock %}
+
+
