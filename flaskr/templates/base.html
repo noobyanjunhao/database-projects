@@ -10,14 +10,13 @@
 </head>
 <body>
 
+    {% block navbar %}
     <header>
         <h1>TJ's</h1>
         <nav>
             <ul>
-                <li><a href="{{ url_for('products.list_products') }}">Home</a></li>
+                <li><a href="{{ url_for('landing.home') }}">Home</a></li>
                 <li><a href="{{ url_for('cart.view_cart') }}">Cart</a></li>
-
-                <!-- Show Logout if user is logged in, otherwise show Register/Login -->
                 {% if g.user %}
                     <li><a href="{{ url_for('orders.view_orders') }}">Orders</a></li>
                     <li><a href="{{ url_for('user.logout') }}">Log Out</a></li>
@@ -28,7 +27,8 @@
             </ul>
         </nav>
     </header>
-
+    {% endblock %}
+       
     <main>
         {% block content %}{% endblock %}
     </main>

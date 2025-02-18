@@ -50,6 +50,9 @@ def create_app(test_config=None) -> Flask:
     from flaskr.orders import orders_bp
     app.register_blueprint(orders_bp)
 
+    from flaskr.landing import landing_bp
+    app.register_blueprint(landing_bp)
+
     return app
 
 
