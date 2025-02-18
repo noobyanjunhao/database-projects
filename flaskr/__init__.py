@@ -47,6 +47,9 @@ def create_app(test_config=None) -> Flask:
     from flaskr.cart import cart_bp
     app.register_blueprint(cart_bp)
 
+    from flaskr.orders import orders_bp
+    app.register_blueprint(orders_bp)
+
     return app
 
 
