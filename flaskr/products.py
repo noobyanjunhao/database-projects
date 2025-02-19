@@ -10,7 +10,7 @@ def list_products() -> str:
     search_query = request.args.get("search", "").strip()
     category_id = request.args.get("category", "").strip()
 
-    sql_query = "SELECT ProductID, ProductName, UnitPrice, CategoryID FROM Products WHERE 1=1"
+    sql_query = "SELECT * FROM Products WHERE 1=1"
     params = {}
 
     if search_query:

@@ -2,13 +2,15 @@
 
 {% block title %}Welcome to TJ's Shopping{% endblock %}
 
-{% block navbar %}{% endblock %}
-
 {% block content %}
-<div class="container text-center mt-5">
-    <h1>Welcome to TJ's Shopping Website!</h1>
-    <p>Discover amazing products and great deals.</p>
-    <a href="{{ url_for('products.list_products') }}" class="btn btn-primary btn-lg">Start Shopping</a>
+<div class="landing-container">
+    <div class="landing-content">
+        <h1>Welcome to <span class="highlight">TJ's Shopping</span></h1>
+        <p class="tagline">Your one-stop destination for premium products and exclusive deals.</p>
+        <a href="{{ url_for('products.list_products') }}" class="btn btn-primary btn-lg">Start Shopping</a>
+    </div>
 </div>
+
+
 {% endblock %}
 

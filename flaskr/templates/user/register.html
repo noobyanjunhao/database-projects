@@ -1,26 +1,47 @@
 {% extends 'base.html' %}
-
-{% block header %}
-  <h1>{% block title %}Register{% endblock %}</h1>
-{% endblock %}
+{% block title %}Register{% endblock %}
 
 {% block content %}
-  
+<div class="auth-container">
+    <div class="auth-box">
+        <div class="auth-header">
+            <h1>Create Account</h1>
+            <p class="auth-subtitle">Join our community today</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category else 'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
 
-  <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Register">
-  </form>
-  {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      <ul class="flashes">
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  {% endwith %}
+        <form method="post" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-wrapper">
+                    <i class="icon user-icon"></i>
+                    <input name="username" id="username" required placeholder="Choose a username">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="icon lock-icon"></i>
+                    <input type="password" name="password" id="password" required placeholder="Choose a password">
+                </div>
+            </div>
+
+            <button type="submit" class="auth-button">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('user.login') }}">Log in here</a></p>
+        </div>
+    </div>
+</div>
 {% endblock %}

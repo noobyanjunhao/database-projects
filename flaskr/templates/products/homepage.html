@@ -50,6 +50,9 @@
                 <div class="product-name">{{ product["ProductName"] }}</div>
                 <div class="product-price">${{ product["UnitPrice"] }}</div>
                 <div class="product-category">Category {{ product["CategoryID"] }}</div>
+		<div class="product-quantity-per-unit">Quantity/Unit {{ product["QuantityPerUnit"] }}</div>
+		<div class="product-unit-in-stock">Stock {{ product["UnitsInStock"] }}</div>
+		<div class="product-reorder-level">Reorder Level {{ product["ReoderLevel"] }}</div>
                 
                 <form method="POST" action="{{ url_for('cart.add_to_cart') }}" onsubmit="return submitAddToCart(this);" class="add-to-cart-form">
                     <input type="hidden" name="product_id" value="{{ product['ProductID'] }}">
