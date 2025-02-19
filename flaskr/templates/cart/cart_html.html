@@ -24,7 +24,7 @@
         <table class="shopping-cart-table">
             <thead>
                 <tr>
-                    <th>Product ID</th>
+                    <th>Product Name</th>
                     <th>Quantity</th>
                     <th>Added At</th>
                     <th>Remove</th>
@@ -33,7 +33,7 @@
             <tbody>
                 {% for item in items %}
                 <tr>
-                    <td>{{ item.product_id }}</td>
+                    <td>{{ item.product_name }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.timestamp }}</td>
                     <td>

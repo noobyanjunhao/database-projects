@@ -11,17 +11,18 @@ def view_cart():
     cart_id = session['session_id']
     db = get_db()
 
-    # Retrieve rows matching the session_id as the ShopperID.
+    # Retrieve rows matching the session_id as the ShopperID, including product names.
     rows = db.execute("""
-        SELECT ProductID, Quantity, AddedAt 
-        FROM Shopping_cart 
-        WHERE ShopperID = ?
+        SELECT p.ProductName, sc.Quantity, sc.AddedAt 
+        FROM Shopping_cart sc
+        JOIN Products p ON sc.ProductID = p.ProductID
+        WHERE sc.ShopperID = ?
     """, (cart_id,)).fetchall()
 
     items = []
     for row in rows:
         items.append({
-            'product_id': row['ProductID'],
+            'product_name': row['ProductName'],
             'quantity': row['Quantity'],
             'timestamp': row['AddedAt']
         })
