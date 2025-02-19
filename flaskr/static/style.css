@@ -318,64 +318,171 @@ nav ul li a:hover {
     }
 }
 /* Cart Page Styles */
-.btn-danger {
-    background-color: var(--accent-color);
-    border: none;
+/* ========== Shopping Cart Page Styles ========== */
+.cart-container {
+    max-width: 900px;
+    background: #ffffff;
+    padding: 2rem;
+    margin: 3rem auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
 }
 
-.btn-success {
-    background-color: #27ae60;
-    border: none;
-    padding: 0.8rem 2rem;
-}
-
-/* Checkout Form Styles */
-form div {
+/* 标题 */
+.cart-title {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #34495e;
     margin-bottom: 1.5rem;
 }
 
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
+/* 购物车为空的提示 */
+.empty-cart {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-top: 2rem;
 }
 
-button[type="submit"] {
-    background-color: #27ae60;
+/* 购物车项 */
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cart-item-image img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 1.5rem;
+}
+
+.cart-item-details {
+    flex: 1;
+}
+
+.cart-product-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.cart-product-price {
+    font-size: 1.2rem;
+    color: #27ae60;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.cart-product-quantity {
+    font-size: 1rem;
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+}
+
+.cart-added-time {
+    font-size: 0.9rem;
+    color: #95a5a6;
+    margin-bottom: 0.5rem;
+}
+
+.cart-item-details input[type="number"] {
+    width: 50px;
+    padding: 5px;
+    border: 2px solid #eef2f7;
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* 移除按钮 */
+.remove-btn {
+    background-color: #e94560;
+    border: none;
     color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.remove-btn:hover {
+    background-color: #d93855;
+}
+
+/* 购物车汇总 */
+.cart-summary {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: #f0f3f5;
+    border-radius: 10px;
+}
+
+.cart-total {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.cart-total-price {
+    color: #27ae60;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* 结账按钮 */
+.checkout-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 600;
     border: none;
     padding: 1rem 2rem;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: background-color 0.3s ease;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
 }
 
-button[type="submit"]:hover {
-    background-color: #219a52;
+.checkout-btn:hover {
+    background: linear-gradient(90deg, #2980b9, #1e6fa0);
+    transform: translateY(-2px);
 }
 
-
-/* Responsive Design */
+/* 响应式设计 */
 @media (max-width: 768px) {
-    header {
+    .cart-container {
+        padding: 1.5rem;
+        margin: 2rem auto;
+    }
+
+    .cart-item {
+        flex-direction: column;
         text-align: center;
-        padding: 1rem;
+        padding: 1.5rem;
     }
-    
-    nav {
-        float: none;
-        display: block;
-        margin-top: 1rem;
+
+    .cart-item-image img {
+        margin-bottom: 1rem;
     }
-    
-    nav ul li {
-        display: block;
-        margin: 0.5rem 0;
-    }
-    
-    .table-responsive {
-        margin-bottom: 80px; /* Account for fixed footer */
+
+    .checkout-btn {
+        font-size: 1rem;
     }
 }
 
@@ -572,87 +679,7 @@ button[type="submit"]:hover {
 }
 
 /* =========== Shopping Cart Page Styles =========== */
-.shopping-cart-container {
-    background: #fff;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    margin: 2rem auto;
-    max-width: 1000px;
-    color: #333;
-}
 
-.shopping-cart-container h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 2rem;
-    font-size: 2rem;
-    font-weight: 600;
-}
-
-/* 优化表格样式 */
-.shopping-cart-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin-bottom: 1.5rem;
-}
-
-.shopping-cart-table thead {
-    background: linear-gradient(90deg, #3498db, #2980b9);
-    color: #fff;
-    border-radius: 8px 8px 0 0;
-}
-
-.shopping-cart-table th,
-.shopping-cart-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.shopping-cart-table tbody tr {
-    transition: background 0.3s ease;
-}
-
-.shopping-cart-table tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.shopping-cart-table tbody tr:hover {
-    background-color: #f1faff;
-}
-
-/* 按钮样式 */
-.remove-btn {
-    background-color: #e94560;
-    border: none;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.remove-btn:hover {
-    background-color: #d93855;
-}
-
-.checkout-btn {
-    display: inline-block;
-    background-color: #27ae60;
-    color: #fff;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.3s ease;
-    font-size: 1.1rem;
-    font-weight: 500;
-}
-
-.checkout-btn:hover {
-    background-color: #219a52;
-}
 
 /* Flash 消息样式 */
 .flash-messages .alert {
@@ -777,6 +804,130 @@ button[type="submit"]:hover {
 
     .place-order-btn {
         font-size: 1rem;
+    }
+}
+
+
+/* ========== Orders Page Styles ========== */
+.orders-container {
+    max-width: 900px;
+    background: #ffffff;
+    padding: 2rem;
+    margin: 3rem auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    color: #2c3e50;
+}
+
+/* 标题 */
+.orders-title {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 600;
+    color: #34495e;
+    margin-bottom: 1.5rem;
+}
+
+/* 订单列表 */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* 订单卡片 */
+.order-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 订单头部 */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+/* 订单详情 */
+.order-body p {
+    font-size: 1rem;
+    color: #7f8c8d;
+    margin-bottom: 0.5rem;
+}
+
+/* 订单操作按钮 */
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.order-details-btn,
+.track-order-btn {
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+.order-details-btn:hover {
+    background: #2980b9;
+}
+
+.track-order-btn {
+    background: #27ae60;
+}
+
+.track-order-btn:hover {
+    background: #219a52;
+}
+
+/* 没有订单的情况 */
+.empty-orders {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    margin-top: 2rem;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .orders-container {
+        padding: 1.5rem;
+        margin: 2rem auto;
+    }
+
+    .order-card {
+        padding: 1.2rem;
+    }
+
+    .order-header {
+        font-size: 1rem;
+    }
+
+    .order-body p {
+        font-size: 0.95rem;
+    }
+
+    .order-details-btn,
+    .track-order-btn {
+        font-size: 0.9rem;
+        padding: 0.7rem 1rem;
     }
 }
 

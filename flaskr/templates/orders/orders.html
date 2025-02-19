@@ -3,13 +3,13 @@
 {% block title %}Your Orders{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center">Your Orders</h2>
+<div class="orders-container">
+    <h1 class="orders-title">Your Orders</h1>
 
-    <!-- 显示 Flash 消息 -->
+    <!-- Flash 消息 -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-        <div class="container">
+        <div class="flash-messages">
             {% for category, message in messages %}
                 <div class="alert alert-{{ category }}" role="alert">
                     {{ message }}
@@ -20,46 +20,39 @@
     {% endwith %}
 
     {% if orders %}
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Order ID</th>
-                    <th>Order Date</th>
-                    <th>Shipping Name</th>
-                    <th>Shipping Address</th>
-                    <th>City</th>
-                    <th>Country</th>
-                    <th>Shipping Method</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for order in orders %}
-                <tr>
-                    <td>{{ order["OrderID"] }}</td>
-                    <td>{{ order["OrderDate"] }}</td>
-                    <td>{{ order["ShipName"] }}</td>
-                    <td>{{ order["ShipAddress"] }}</td>
-                    <td>{{ order["ShipCity"] }}</td>
-                    <td>{{ order["ShipCountry"] }}</td>
-                    <td>
-                        {% if order["ShipVia"] == 1 %}
-                            Standard
-                        {% elif order["ShipVia"] == 2 %}
-                            Express
-                        {% elif order["ShipVia"] == 3 %}
-                            Overnight
-                        {% else %}
-                            Unknown
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">Order #{{ order["OrderID"] }}</span>
+                <span class="order-date">{{ order["OrderDate"] }}</span>
+            </div>
+            
+            <div class="order-body">
+                <p><strong>Shipping Name:</strong> {{ order["ShipName"] }}</p>
+                <p><strong>Address:</strong> {{ order["ShipAddress"] }}, {{ order["ShipCity"] }}, {{ order["ShipCountry"] }}</p>
+                <p><strong>Shipping Method:</strong>
+                    {% if order["ShipVia"] == 1 %}
+                        Standard
+                    {% elif order["ShipVia"] == 2 %}
+                        Express
+                    {% elif order["ShipVia"] == 3 %}
+                        Overnight
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="order-footer">
+                <a href="#" class="order-details-btn">View Details</a>
+                <a href="#" class="track-order-btn">Track Order</a>
+            </div>
+        </div>
+        {% endfor %}
     </div>
     {% else %}
-    <p class="text-muted text-center">You have no orders yet.</p>
+    <p class="empty-orders">You have no orders yet.</p>
     {% endif %}
 </div>
 {% endblock %}

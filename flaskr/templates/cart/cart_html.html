@@ -3,8 +3,8 @@
 {% block title %}Shopping Cart{% endblock %}
 
 {% block content %}
-<div class="container mt-4 shopping-cart-container">
-    <h2>Your Shopping Cart</h2>
+<div class="cart-container">
+    <h1 class="cart-title">Shopping Cart</h1>
 
     <!-- Flash 消息 -->
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -20,39 +20,29 @@
     {% endwith %}
 
     {% if items %}
-    <div class="table-responsive">
-        <table class="shopping-cart-table">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Added At</th>
-                    <th>Remove</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in items %}
-                <tr>
-                    <td>{{ item.product_name }}</td>
-                    <td>{{ item.quantity }}</td>
-                    <td>{{ item.timestamp }}</td>
-                    <td>
-                        <form action="{{ url_for('cart.remove_from_cart') }}" method="POST" style="display:inline;">
-                            <input type="hidden" name="product_id" value="{{ item.product_id }}">
-                            <button type="submit" class="remove-btn">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div class="cart-items">
+        {% for item in items %}
+        <div class="cart-item">
+            <div class="cart-item-details">
+                <h3 class="cart-product-name">{{ item.product_name }}</h3>
+                <p class="cart-product-price">${{ item.price }}</p>
+                <p class="cart-product-quantity">Quantity: 
+                    <input type="number" min="1" value="{{ item.quantity }}">
+                </p>
+                <p class="cart-added-time">Added: {{ item.timestamp }}</p>
+                <form action="{{ url_for('cart.remove_from_cart') }}" method="POST">
+                    <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                    <button type="submit" class="remove-btn">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 
-    <div class="text-center mt-4">
-        <a href="{{ url_for('checkout.checkout') }}" class="checkout-btn">Proceed to Checkout</a>
+
     </div>
     {% else %}
-    <p class="text-muted text-center">Your cart is empty.</p>
+    <p class="empty-cart">Your cart is empty.</p>
     {% endif %}
 </div>
 {% endblock %}
