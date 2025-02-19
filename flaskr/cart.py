@@ -13,7 +13,7 @@ def view_cart():
 
     # Retrieve rows matching the session_id as the ShopperID.
     rows = db.execute("""
-        SELECT ID, ProductID, Quantity, AddedAt 
+        SELECT ProductID, Quantity, AddedAt 
         FROM Shopping_cart 
         WHERE ShopperID = ?
     """, (cart_id,)).fetchall()
@@ -21,7 +21,6 @@ def view_cart():
     items = []
     for row in rows:
         items.append({
-            'id': row['ID'],
             'product_id': row['ProductID'],
             'quantity': row['Quantity'],
             'timestamp': row['AddedAt']
@@ -67,18 +66,18 @@ def add_to_cart():
 
 @cart_bp.route('remove/', methods=['POST'])
 def remove_from_cart():
-    """Remove a single row from the cart by its ID."""
+    """Remove a single product from the cart by its ProductID."""
     if 'session_id' not in session:
         return redirect(url_for('cart.view_cart'))
 
     cart_id = session['session_id']
-    row_id = request.form['row_id']
+    product_id = request.form['product_id']
 
     db = get_db()
     db.execute("""
         DELETE FROM Shopping_cart 
-        WHERE ID = ? AND ShopperID = ?
-    """, (row_id, cart_id))
+        WHERE ProductID = ? AND ShopperID = ?
+    """, (product_id, cart_id))
     db.commit()
 
     return redirect(url_for('cart.view_cart'))

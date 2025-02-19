@@ -25,7 +25,6 @@
         <table class="table table-striped table-bordered">
             <thead class="table-dark">
                 <tr>
-                    <th>Row ID</th>
                     <th>Product ID</th>
                     <th>Quantity</th>
                     <th>Added At</th>
@@ -35,14 +34,13 @@
             <tbody>
                 {% for item in items %}
                 <tr>
-                    <td>{{ item.id }}</td>
                     <td>{{ item.product_id }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>{{ item.timestamp }}</td>
                     <td>
-                        <!-- Remove form: posts to /cart/remove/ by ID -->
+                        <!-- Remove form: posts to /cart/remove/ by ProductID -->
                         <form action="{{ url_for('cart.remove_from_cart') }}" method="POST" style="display:inline;">
-                            <input type="hidden" name="row_id" value="{{ item.id }}">
+                            <input type="hidden" name="product_id" value="{{ item.product_id }}">
                             <button type="submit" class="btn btn-sm btn-danger">Remove</button>
                         </form>
                     </td>
