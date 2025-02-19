@@ -135,12 +135,13 @@ nav ul li a:hover {
 }
 
 .search-container input {
-    width: 100%;
+    width: 85%;
     padding: 1rem 1.5rem;
     border: 2px solid #eef2f7;
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
+    margin-left
 }
 
 .search-container input:focus {
@@ -239,7 +240,7 @@ nav ul li a:hover {
 .product-category, .product-quantity-per-unit, .product-unit-in-stock, .product-reorder-level {
     font-size: 0.9rem;
     color: #7f8c8d;
-    margin-bottom: 1rem;
+    margin-bottom: 5px;
 }
 
 /* Add to Cart Form */
@@ -265,6 +266,7 @@ nav ul li a:hover {
     border-radius: 8px;
     font-weight: 500;
     transition: all 0.3s ease;
+    height: 43px;
 }
 
 .add-to-cart-btn:hover {
@@ -336,14 +338,6 @@ label {
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-}
-
-input[type="text"], select {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
 }
 
 button[type="submit"] {

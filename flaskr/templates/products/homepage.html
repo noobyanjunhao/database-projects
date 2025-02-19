@@ -37,27 +37,18 @@
     <div class="products-grid">
         {% for product in products %}
         <div class="product-card">
-            <div class="product-image">
-                <!-- Placeholder for product image -->
-                <svg width="100" height="100" viewBox="0 0 100 100" fill="#ddd">
-                    <rect width="100" height="100"/>
-                    <text x="50" y="50" font-family="Arial" font-size="14" fill="#666" text-anchor="middle" dy=".3em">
-                        Product Image
-                    </text>
-                </svg>
-            </div>
             <div class="product-info">
                 <div class="product-name">{{ product["ProductName"] }}</div>
                 <div class="product-price">${{ product["UnitPrice"] }}</div>
-                <div class="product-category">Category {{ product["CategoryID"] }}</div>
-		<div class="product-quantity-per-unit">Quantity/Unit {{ product["QuantityPerUnit"] }}</div>
-		<div class="product-unit-in-stock">Stock {{ product["UnitsInStock"] }}</div>
-		<div class="product-reorder-level">Reorder Level {{ product["ReoderLevel"] }}</div>
+                <div class="product-category">Category 📖 : {{ product["CategoryID"] }}</div>
+		<div class="product-quantity-per-unit">Quantity(Unit) 🔢: {{ product["QuantityPerUnit"] }}</div>
+		<div class="product-unit-in-stock">Stock 📦 : {{ product["UnitsInStock"] }}</div>
+		<div class="product-reorder-level">Reorder Level 🌟 : {{ product["ReorderLevel"] }}</div>
                 
                 <form method="POST" action="{{ url_for('cart.add_to_cart') }}" onsubmit="return submitAddToCart(this);" class="add-to-cart-form">
                     <input type="hidden" name="product_id" value="{{ product['ProductID'] }}">
                     <input type="number" name="quantity" value="1" min="1" class="quantity-input">
-                    <button type="submit" class="add-to-cart-btn">Add to Cart</button>
+                    <button type="" class="add-to-cart-btn">Add to Cart</button>
                 </form>
             </div>
         </div>
