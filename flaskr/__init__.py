@@ -53,6 +53,9 @@ def create_app(test_config=None) -> Flask:
     from flaskr.landing import landing_bp
     app.register_blueprint(landing_bp)
 
+    from flaskr.checkout import checkout_bp
+    app.register_blueprint(checkout_bp)
+
     return app
 
 
