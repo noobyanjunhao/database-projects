@@ -570,3 +570,97 @@ button[type="submit"]:hover {
         font-size: 16px; /* Prevents zoom on mobile */
     }
 }
+
+/* =========== Shopping Cart Page Styles =========== */
+.shopping-cart-container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    margin: 2rem auto;
+    max-width: 1000px;
+    color: #333;
+}
+
+.shopping-cart-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+/* 优化表格样式 */
+.shopping-cart-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 1.5rem;
+}
+
+.shopping-cart-table thead {
+    background: linear-gradient(90deg, #3498db, #2980b9);
+    color: #fff;
+    border-radius: 8px 8px 0 0;
+}
+
+.shopping-cart-table th,
+.shopping-cart-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.shopping-cart-table tbody tr {
+    transition: background 0.3s ease;
+}
+
+.shopping-cart-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.shopping-cart-table tbody tr:hover {
+    background-color: #f1faff;
+}
+
+/* 按钮样式 */
+.remove-btn {
+    background-color: #e94560;
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.remove-btn:hover {
+    background-color: #d93855;
+}
+
+.checkout-btn {
+    display: inline-block;
+    background-color: #27ae60;
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.3s ease;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.checkout-btn:hover {
+    background-color: #219a52;
+}
+
+/* Flash 消息样式 */
+.flash-messages .alert {
+    background-color: #e8f5e9;
+    border: none;
+    color: #1b5e20;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
