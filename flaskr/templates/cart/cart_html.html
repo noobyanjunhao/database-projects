@@ -24,12 +24,17 @@
         {% for item in items %}
         <div class="cart-item">
             <div class="cart-item-details">
-                <h3 class="cart-product-name">{{ item.product_name }}</h3>
+                <h3 class="cart-product-name">{{ item.name }}</h3>
                 <p class="cart-product-price">${{ item.price }}</p>
-                <p class="cart-product-quantity">Quantity: 
-                    <input type="number" min="1" value="{{ item.quantity }}">
-                </p>
+                <form action="{{ url_for('cart.update_quantity') }}" method="POST">
+                    <p class="cart-product-quantity">Quantity: 
+                        <input type="number" name="quantity" min="1" value="{{ item.quantity }}">
+                    </p>
+                    <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                    <button type="submit" class="update-btn">Update</button>
+                </form>
                 <p class="cart-added-time">Added: {{ item.timestamp }}</p>
+                <p class="cart-total-price">Total: ${{ item.total_price }}</p>
                 <form action="{{ url_for('cart.remove_from_cart') }}" method="POST">
                     <input type="hidden" name="product_id" value="{{ item.product_id }}">
                     <button type="submit" class="remove-btn">Remove</button>
@@ -38,7 +43,6 @@
         </div>
         {% endfor %}
     </div>
-
 
     <div class="cart-summary">
         <a href="{{ url_for('checkout.checkout') }}" class="checkout-btn">Proceed to Checkout</a>
