@@ -1,34 +1,37 @@
+# tests/conftest.py
 import os
-import tempfile
 import pytest
 from flaskr import create_app
-from flaskr.db import get_db, init_db
-
-with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
+from flaskr.db import get_db
 
 @pytest.fixture
 def app():
-    db_fd, db_path = tempfile.mkstemp()
-
+    # Create the Flask app with a special test config
     app = create_app({
         'TESTING': True,
-        'DATABASE': db_path,
+        'DATABASE': ':memory:',  # Use an in-memory database
     })
 
     with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
+        db = get_db()
+        
+        # Initialize the database schema
+        with open('flaskr/schema.sql', 'r') as f:
+            db.executescript(f.read())
+        
+        # Optionally, load data from northwind.db if needed
+        # You can use a similar approach to load data if required
 
-    yield app
+    yield app  # yield the app for the test
+    # No need to tear down the in-memory database
 
-    os.close(db_fd)
-    os.unlink(db_path)
 
 @pytest.fixture
 def client(app):
+    """A test client for the app."""
     return app.test_client()
 
 @pytest.fixture
 def runner(app):
+    """A test runner for the app's Click commands (if you have any)."""
     return app.test_cli_runner()
