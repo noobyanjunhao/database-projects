@@ -20,10 +20,15 @@ def register():
         db = get_db()
         error = None
 
+# ----------------------------
+        # ENFORCE EXACTLY 5 CHARACTERS
         if not username:
             error = 'User ID is required.'
+        elif len(username) != 5:  # <-- Added line
+            error = 'User ID must be exactly 5 characters.'  # <-- Added line
         elif not password:
             error = 'Password is required.'
+        # ----------------------------
 
         if error is None:
             # Check if the user exists in the Customers table.
@@ -65,11 +70,15 @@ def login():
         db = get_db()
         error = None
 
+ # ----------------------------
+        # ENFORCE EXACTLY 5 CHARACTERS
         if not username:
             error = "User ID is required."
+        elif len(username) != 5:  # <-- Added line
+            error = "User ID must be exactly 5 characters."  # <-- Added line
         elif not password:
             error = "Password is required."
-
+        # ----------------------------
         if error is None:
             # Look up the user by UserID (which is stored in uppercase) in the Authentication table.
             user = db.execute(
