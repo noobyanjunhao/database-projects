@@ -19,3 +19,9 @@ def close_db(e=None) -> None:
 def init_app(app):
     """注册数据库相关的函数"""
     app.teardown_appcontext(close_db)
+
+def init_db():
+    """Initialize the database with the schema."""
+    db = get_db()
+    with current_app.open_resource('schema.sql') as f:
+        db.executescript(f.read().decode('utf8'))

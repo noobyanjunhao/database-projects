@@ -2,6 +2,7 @@
 import pytest
 from flaskr.db import get_db
 from datetime import datetime, timedelta
+from flaskr.cart import get_est_time
 
 def test_view_cart_empty(client):
     """
@@ -91,7 +92,7 @@ def test_cleanup_old_cart_entries(app):
     Directly test the cleanup_old_cart_entries function by inserting
     an old row and verifying that it gets removed.
     """
-    from flaskr.cart import cleanup_old_cart_entries, get_est_time
+    from flaskr.cart import cleanup_old_cart_entries
     
     with app.app_context():
         db = get_db()

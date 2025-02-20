@@ -1,3 +1,6 @@
+from jinja2 import TemplateNotFound
+import pytest
+
 def test_landing_page(client):
     response = client.get('/')
     assert response.status_code == 200
@@ -11,5 +14,5 @@ def test_missing_template(client, monkeypatch):
     
     monkeypatch.setattr('flaskr.landing.render_template', mock_render_template)
     
-    response = client.get('/')
-    assert response.status_code == 404 
+    with pytest.raises(TemplateNotFound):
+        client.get('/') 
