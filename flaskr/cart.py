@@ -87,20 +87,11 @@ def remove_from_cart():
     db.commit()
     return redirect(url_for('cart.view_cart'))
 
-@cart_bp.route('/update_quantity', methods=['POST'])
-def update_quantity():
-    product_id = request.form.get('product_id')
-    quantity = request.form.get('quantity')
-    # Ensure session_id is present
-    if 'session_id' not in session:
-        return redirect(url_for('cart.view_cart'))
-    cart_id = session['session_id']
+def cleanup_old_cart_entries():
     db = get_db()
+    one_month_ago = get_est_time() - timedelta(days=30)
     db.execute("""
-        UPDATE Shopping_cart 
-        SET Quantity = ? 
-        WHERE ShopperID = ? AND ProductID = ?
-    """, (int(quantity), cart_id, product_id))
+        DELETE FROM Shopping_cart 
+        WHERE AddedAt < ?
+    """, (one_month_ago,))
     db.commit()
-    return redirect(url_for('cart.view_cart'))
-
