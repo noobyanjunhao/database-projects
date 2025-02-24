@@ -25,10 +25,10 @@
         <div class="cart-item">
             <div class="cart-item-details">
                 <h3 class="cart-product-name">{{ item.name }}</h3>
-                <p class="cart-product-price">${{ item.price }}</p>
+                <p class="cart-product-price">${{ "%.2f"|format(item.price) }}</p>
                 <p class="cart-product-quantity">Quantity: {{ item.quantity }}</p>
                 <p class="cart-added-time">Added: {{ item.timestamp }}</p>
-                <p class="cart-total-price">Total: ${{ item.total_price }}</p>
+                <p class="cart-total-price">Total: ${{ "%.2f"|format(item.total_price) }}</p>
                 <form action="{{ url_for('cart.remove_from_cart') }}" method="POST">
                     <input type="hidden" name="product_id" value="{{ item.product_id }}">
                     <button type="submit" class="remove-btn">Remove</button>
@@ -39,6 +39,7 @@
     </div>
 
     <div class="cart-summary">
+        <h2>Cart Total: ${{ "%.2f"|format(total) }}</h2>
         <a href="{{ url_for('checkout.checkout') }}" class="checkout-btn">Proceed to Checkout</a>
     </div>
     {% else %}

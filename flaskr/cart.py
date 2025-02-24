@@ -7,27 +7,33 @@ cart_bp = Blueprint('cart', __name__, url_prefix='/cart')
 @cart_bp.route('/')
 def view_cart():
     """Show all items in this shopper's cart."""
-    # Use the pre-created session_id (fallback to generating one if missing)
-    
     cart_id = session['session_id']
     db = get_db()
 
-    # Retrieve rows matching the session_id as the ShopperID.
+    # Join with Products table to get product details
     rows = db.execute("""
-        SELECT ProductID, Quantity, AddedAt 
-        FROM Shopping_cart 
-        WHERE ShopperID = ?
+        SELECT sc.ProductID, sc.Quantity, sc.AddedAt,
+               p.ProductName, p.UnitPrice
+        FROM Shopping_cart sc
+        JOIN Products p ON sc.ProductID = p.ProductID
+        WHERE sc.ShopperID = ?
     """, (cart_id,)).fetchall()
 
     items = []
+    total = 0
     for row in rows:
+        item_total = row['UnitPrice'] * row['Quantity']
+        total += item_total
         items.append({
             'product_id': row['ProductID'],
+            'name': row['ProductName'],
+            'price': row['UnitPrice'],
             'quantity': row['Quantity'],
-            'timestamp': row['AddedAt']
+            'timestamp': row['AddedAt'],
+            'total_price': item_total
         })
 
-    return render_template('cart/cart_html.html', items=items)
+    return render_template('cart/cart_html.html', items=items, total=total)
 
 @cart_bp.route('add/', methods=['POST'])
 def add_to_cart():
