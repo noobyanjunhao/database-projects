@@ -1,14 +1,16 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flaskr.db import get_db, initialize_northwind
 
 db = SQLAlchemy()
 
 def create_app(test_config=None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
+    db_path = os.path.join(app.instance_path, "flaskr.sqlite")
     app.config.from_mapping(
         SECRET_KEY=os.getenv("SECRET_KEY", os.urandom(24).hex()),
-        DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
+        DATABASE=db_path if test_config is None else test_config["DATABASE"],  # ✅ 确保数据库可被 `pytest` 覆盖
         SQLALCHEMY_DATABASE_URI="sqlite:///northwind.db",
     )
 
@@ -21,6 +23,10 @@ def create_app(test_config=None) -> Flask:
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    with app.app_context():
+        initialize_northwind()  # ✅ 在应用启动时检查 `northwind.db`
+
 
     @app.before_request
     def ensure_session_id():

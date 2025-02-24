@@ -22,7 +22,6 @@ def app():
     })
 
     with app.app_context():
-        init_db()  # Initialize the database structure
         # Ensure the database is empty before inserting data
         get_db().executescript('DELETE FROM Customers;')  # Clear existing data
         get_db().executescript(_data_sql)  # Insert test data from `data.sql`
