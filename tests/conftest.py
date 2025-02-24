@@ -4,7 +4,7 @@ import pytest
 import sys
 import tempfile
 from flaskr import create_app
-from flaskr.db import get_db, init_db
+from flaskr.db import get_db
 from flask import Flask
 
 # 读取 `data.sql` 文件的内容
