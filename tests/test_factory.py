@@ -1,8 +1,8 @@
 from flaskr import create_app
 
-def test_config():
+def test_config(app):
     assert not create_app().testing
-    assert create_app({'TESTING': True, 'DATABASE': ':memory:'}).testing
+    assert app.testing
 
 def test_hello(client):
     response = client.get('/hello')

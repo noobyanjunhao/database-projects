@@ -3,15 +3,19 @@ import pytest
 from flaskr.db import get_db
 
 def test_get_close_db(app):
-    """测试数据库连接是否正确打开和关闭"""
+    """Test database connection is closed after context."""
     with app.app_context():
         db = get_db()
-        assert db is get_db()  # 确保 `get_db()` 在同一请求内返回相同的数据库连接
+        assert db is get_db()
+        
+    # Explicitly close the database connection
+    db.close()
 
+    # Try to execute a query after the context is closed
     with pytest.raises(sqlite3.ProgrammingError) as e:
-        db.execute("SELECT 1")  # 请求结束后，数据库连接应该关闭
-
-    assert "closed" in str(e.value)
+        db.execute('SELECT 1')
+    
+    assert 'closed' in str(e.value)
 
 def test_database_content(app):
     """测试数据库是否正确插入了测试数据"""
