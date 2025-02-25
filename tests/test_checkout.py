@@ -23,6 +23,7 @@ def test_checkout_requires_login(client, auth, app):
     assert response.headers['Location'] == '/products'
 
 def test_checkout_empty_cart(client, auth):
+    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
     auth.login('NEWUS', 'newpassword')
     response = client.get('/checkout/')
     assert response.status_code == 302
@@ -37,6 +38,7 @@ def test_checkout_invalid_session(client, auth):
     assert response.headers['Location'] == '/user/login'
 
 def test_checkout_database_error(client, auth, app):
+    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
     auth.login('NEWUS', 'newpassword')
     client.post('/cart/add/', data={'product_id': '42', 'quantity': '2'})
 
@@ -57,7 +59,11 @@ def test_checkout_database_error(client, auth, app):
     assert response.headers['Location'] == '/cart/'
 
 def test_checkout_get_request(client, auth):
+    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
     auth.login('NEWUS', 'newpassword')
+
+    client.post('/cart/add/', data={'product_id': '1', 'quantity': '1'})
+    
     response = client.get('/checkout/')
     assert response.status_code == 200
     assert b"Checkout" in response.data

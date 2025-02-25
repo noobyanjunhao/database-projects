@@ -26,19 +26,39 @@ def test_cart_page(client):
     html = response.get_data(as_text=True)
     assert "Shopping Cart" in html  # 确保购物车页面正确渲染
 
-def test_checkout_page(client):
+def test_checkout_page_from_empty_cart(client):
     """
-    测试结账页面是否可访问
+    测试结账页面是否可访问 when cart is empty.
     """
     # Simulate a logged-in user by setting session variables.
     with client.session_transaction() as sess:
         sess['user_id'] = 'SOMEUSER'
         sess['session_id'] = 'some-session'
     
+    # Option A: If the cart is empty, expect a redirect to /cart/
+    response = client.get("/checkout/")
+    assert response.status_code == 302
+    assert response.headers['Location'] == '/cart/'
+
+def test_checkout_page_from_non_empty_cart(client):
+    """
+    测试结账页面是否可访问 when cart is not empty.
+    """
+    # Simulate a logged-in user by setting session variables.
+    with client.session_transaction() as sess:
+        sess['user_id'] = 'SOMEUSER'
+        sess['session_id'] = 'some-session'
+    
+    # Add an item to the cart so the cart is not empty.
+    client.post('/cart/add/', data={'product_id': '1', 'quantity': '1'})
+    
+    # Now, GET the checkout page.
     response = client.get("/checkout/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "Checkout" in html  # 确保结账页面正确渲染
+
+
 
 def test_products_page(client):
     """
