@@ -30,6 +30,11 @@ def test_checkout_page(client):
     """
     测试结账页面是否可访问
     """
+    # Simulate a logged-in user by setting session variables.
+    with client.session_transaction() as sess:
+        sess['user_id'] = 'SOMEUSER'
+        sess['session_id'] = 'some-session'
+    
     response = client.get("/checkout/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
@@ -48,10 +53,16 @@ def test_orders_page(client):
     """
     测试订单页面是否可访问
     """
+    # Simulate a logged-in user
+    with client.session_transaction() as sess:
+        sess['user_id'] = 'NEWUS'
+        sess['session_id'] = 'test-session-123'
+    
     response = client.get("/orders/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "Orders" in html  # 确保订单页面正确渲染
+
 
 def test_login_page(client):
     """
