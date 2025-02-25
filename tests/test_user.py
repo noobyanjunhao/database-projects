@@ -39,6 +39,9 @@ def test_register(client, app):
         assert check_password_hash(user['PasswordHash'], 'newpassword')
 
 def test_login(client, auth):
+    # Register the user so that they exist for login
+    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
+
     # Test GET request to login page
     response = client.get('/user/login')
     assert response.status_code == 200

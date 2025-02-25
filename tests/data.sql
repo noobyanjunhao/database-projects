@@ -1,15 +1,19 @@
+-- 删除 之前创建的 Authenticaiton 和 Shopping_cart 表格
+DROP TABLE IF EXISTS Authentication;
+DROP TABLE IF EXISTS Shopping_cart;
+
 -- 创建 Customers 表
 CREATE TABLE IF NOT EXISTS Customers (
     CustomerID TEXT PRIMARY KEY,
-    CompanyName TEXT NOT NULL,
-    ContactName TEXT NOT NULL,
-    ContactTitle TEXT NOT NULL,
-    Address TEXT NOT NULL,
-    City TEXT NOT NULL,
+    CompanyName TEXT,
+    ContactName TEXT,
+    ContactTitle TEXT,
+    Address TEXT,
+    City TEXT,
     Region TEXT,
     PostalCode TEXT,
-    Country TEXT NOT NULL,
-    Phone TEXT NOT NULL,
+    Country TEXT,
+    Phone TEXT,
     Fax TEXT
 );
 

@@ -46,8 +46,8 @@ def register():
             try:
                 # Insert the authentication record.
                 db.execute(
-                    "INSERT INTO Authentication (UserID, PasswordHash) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO Authentication (UserID, PasswordHash, SessionID) VALUES (?, ?, ?)",
+                    (username, generate_password_hash(password), session.get('session_id')),
                 )
                 db.commit()
             except db.IntegrityError:
