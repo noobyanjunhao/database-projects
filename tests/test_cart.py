@@ -30,32 +30,35 @@ def test_add_to_cart(client):
     with client.session_transaction() as sess:
         sess['session_id'] = 'test-session-123'
     
-    # Add item using an existing product_id (e.g., "1")
+    # Add item
     response = client.post('/cart/add/', data={
-        'product_id': '1',
+        'product_id': '42',
         'quantity': '2'
     })
+
+    print("Response JSON from /cart/add/:", response.json)
+
     # The route returns JSON {"status": "success", "message": "..."}
     assert response.status_code == 200
     assert response.json.get('status') == 'success'
-    
+
     # Now view the cart
     response = client.get('/cart/')
     assert response.status_code == 200
     html = response.get_data(as_text=True)
+    print("Cart HTML output:", html)
     # Check that we see the product ID or name in the cart
-    assert "1" in html or "Wireless Mouse" in html
+    assert "42" in html or "ProductName" in html
 
     # Optionally check DB directly
     with client.application.app_context():
-        db = get_db()
+        db = get_db() 
         row = db.execute("""
             SELECT * FROM Shopping_cart
             WHERE ShopperID = ? AND ProductID = ?
-        """, ('test-session-123', '1')).fetchone()
+        """, ('test-session-123', '42')).fetchone()
         assert row is not None
         assert row['Quantity'] == 2
-
 
 def test_remove_from_cart(client):
     """
