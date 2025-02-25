@@ -53,7 +53,7 @@ def runner(app):
 def auth(client):
     """A fixture to handle authentication for tests."""
     def login(username, password):
-        return client.post('/auth/login', data={'username': username, 'password': password})
+        return client.post('/user/login', data={'username': username, 'password': password})
 
     return login
 
