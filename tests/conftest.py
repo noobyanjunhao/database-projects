@@ -6,6 +6,7 @@ import tempfile
 from flaskr import create_app
 from flaskr.db import get_db
 from flask import Flask
+import sqlite3
 
 # 读取 `data.sql` 文件的内容
 with open(os.path.join(os.path.dirname(__file__), "data.sql"), "r", encoding="utf8") as f:
@@ -15,16 +16,23 @@ with open(os.path.join(os.path.dirname(__file__), "data.sql"), "r", encoding="ut
 def app():
     """Create a Flask test app and use a temporary database."""
     db_fd, db_path = tempfile.mkstemp()  # Create a temporary database file
+    
+    # First create an initial database with tables and test data
+    db = sqlite3.connect(db_path)
+    try:    
+        db.executescript(_data_sql)  # Create tables and insert test data
+        db.commit()
+    except Exception as e:
+        print(f"Error initializing test database: {e}")
+        raise
+    finally:
+        db.close()
 
+    # Now create the app with the pre-initialized database
     app = create_app({
         'TESTING': True,
         'DATABASE': db_path,  # Specify the temporary database path
     })
-
-    with app.app_context():
-        # Ensure the database is empty before inserting data
-        #get_db().executescript('DELETE FROM Customers;')  # Clear existing data
-        get_db().executescript(_data_sql)  # Insert test data from `data.sql`
 
     yield app
 

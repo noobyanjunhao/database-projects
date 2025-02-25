@@ -26,14 +26,27 @@ def initialize_northwind():
     """检查 `northwind.db` 是否已有 `Authentication` 和 `Shopping_cart` 表，如果没有，则创建"""
     db = get_db()
 
-    # ✅ 1. 创建 `Authentication` 和 `Shopping_cart`（如果它们不存在）
-    db.executescript("""
+    # ✅ 1. 创建 `Authentication` 表（不依赖其他表）
+    db.execute("""
         CREATE TABLE IF NOT EXISTS Authentication (
             UserID TEXT PRIMARY KEY,
             PasswordHash TEXT NOT NULL,
             SessionID TEXT
         );
+    """)
 
+    # ✅ 2. 确保 Products 表存在（如果不存在则创建）
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS Products (
+            ProductID INTEGER PRIMARY KEY,
+            ProductName TEXT NOT NULL,
+            UnitPrice REAL,
+            UnitsInStock INTEGER
+        );
+    """)
+
+    # ✅ 3. 创建 Shopping_cart 表（现在可以安全地引用 Products 表）
+    db.execute("""
         CREATE TABLE IF NOT EXISTS Shopping_cart (
             ShopperID INTEGER NOT NULL,
             ProductID INTEGER NOT NULL,
@@ -44,7 +57,7 @@ def initialize_northwind():
         );
     """)
 
-    # ✅ 2. 在 `Employees` 表中插入 `EmployeeID=999999`（如果它还不存在）
+    # ✅ 4. 在 `Employees` 表中插入 `EmployeeID=999999`（如果它还不存在）
     db.execute("""
         INSERT INTO Employees (EmployeeID, LastName, FirstName)
         SELECT 999999, 'WEB', 'WEB'

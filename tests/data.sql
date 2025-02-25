@@ -44,10 +44,23 @@ CREATE TABLE IF NOT EXISTS Employees (
 );
 
 -- 插入测试数据
-INSERT INTO Employees (LastName, FirstName, Title, TitleOfCourtesy, BirthDate, HireDate, Address, City, Country, HomePhone)
-VALUES
-    ('Doe', 'John', 'Sales Manager', 'Mr.', '1985-06-15', '2010-03-10', '789 Office Park', 'San Francisco', 'USA', '111-222-3333'),
-    ('Smith', 'Jane', 'HR Manager', 'Ms.', '1990-07-20', '2012-05-14', '456 HR Blvd', 'Chicago', 'USA', '555-666-7777');
+INSERT INTO Employees (
+    LastName, FirstName, Title, TitleOfCourtesy, 
+    BirthDate, HireDate, Address, City, Country, HomePhone
+) VALUES 
+    ('Doe', 'John', 'Sales Manager', 'Mr.',
+     '1985-06-15', '2010-03-10', '789 Office Park', 'San Francisco', 'USA', '111-222-3333'),
+    ('Smith', 'Jane', 'HR Manager', 'Ms.',
+     '1990-07-20', '2012-05-14', '456 HR Blvd', 'Chicago', 'USA', '555-666-7777');
+
+-- Also add the special WEB employee that's required by the application
+INSERT OR IGNORE INTO Employees (
+    EmployeeID, LastName, FirstName, Title, TitleOfCourtesy,
+    BirthDate, HireDate, Address, City, Country, HomePhone
+) VALUES (
+    999999, 'WEB', 'WEB', 'NULL', 'NULL',
+    'NULL', 'NULL', 'NULL', 'NULL', 'NULL', 'NULL'
+);
 
 ---------------------------------------------------------------
 
