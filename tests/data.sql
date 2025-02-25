@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS Orders (
     CustomerID TEXT NOT NULL,
     EmployeeID INTEGER NOT NULL,
     OrderDate DATETIME NOT NULL,
-    RequiredDate DATETIME NOT NULL,
+    RequiredDate DATETIME,
     ShippedDate DATETIME,
     ShipVia INTEGER NOT NULL,
     Freight NUMERIC DEFAULT 0,

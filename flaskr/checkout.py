@@ -6,6 +6,9 @@ checkout_bp = Blueprint('checkout', __name__, url_prefix='/checkout')
 @checkout_bp.route('/', methods=['GET', 'POST'])
 def checkout():
     """Checkout the cart."""
+    if 'user_id' not in session or 'session_id' not in session:
+        return redirect(url_for('user.login'))
+    
     if request.method == 'POST':
         # Ensure the user is logged in by checking both user_id and session_id.
         if 'user_id' not in session or 'session_id' not in session:

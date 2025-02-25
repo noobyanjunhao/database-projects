@@ -5,10 +5,10 @@ from flaskr.db import get_db
 def auth(client):
     class AuthActions:
         def login(self, username, password):
-            return client.post('/auth/login', data={'username': username, 'password': password})
+            return client.post('/user/login', data={'username': username, 'password': password})
 
         def logout(self):
-            return client.get('/auth/logout')
+            return client.get('/user/logout')
 
     return AuthActions()
 
@@ -18,14 +18,13 @@ def test_checkout_requires_login(client, auth, app):
     assert response.status_code == 302  # Expect redirect
     assert response.headers['Location'] == '/user/login'  # Expect redirect to login
 
-    # Log in the user
-    response = auth.login('testuser', 'hashedpassword123')
-    assert response.status_code == 200  # Ensure login was successful
+    # Register a new user (ensuring proper hashing)
+    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
 
-    # Add an item to the cart
-    with client.session_transaction() as sess:
-        sess['session_id'] = 'test-session-123'
-        sess['user_id'] = 'testuser'  # Ensure the session is associated with the logged-in user
+    # Log in the newly registered user
+    response = auth.login('NEWUS', 'newpassword')
+    assert response.status_code == 302  # Expect redirect after login
+    assert response.headers['Location'] == '/products'
 
     # Debugging: Check session state
     with client.session_transaction() as sess:
@@ -45,10 +44,10 @@ def test_checkout_requires_login(client, auth, app):
         'ship_country': 'USA',
         'place_order': 'true'
     })
-    assert response.headers['Location'] == '/orders'
+    assert response.headers['Location'] == '/orders/'
 
     # Check the database for the new order
     with app.app_context():
         db = get_db()
-        order = db.execute("SELECT * FROM Orders WHERE CustomerID = 'testuser'").fetchone()
+        order = db.execute("SELECT * FROM Orders WHERE CustomerID = 'NEWUS'").fetchone()
         assert order is not None
