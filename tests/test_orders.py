@@ -1,15 +1,18 @@
 import pytest
 from flaskr.db import get_db
+from flask import Flask
+from flask.testing import FlaskClient
+from typing import Callable, Any
 
-def test_view_orders_requires_login(client):
+def test_view_orders_requires_login(client: FlaskClient) -> None:
     """Test that viewing orders redirects to login if user is not authenticated"""
     response = client.get('/orders/')
     assert response.status_code == 302  # Expect redirect
     assert response.headers['Location'] == '/user/login'
 
-def test_view_orders_empty(client, auth):
+def test_view_orders_empty(client: FlaskClient, auth: Callable[[str, str], None]) -> None:
     """Test viewing orders when user has no orders"""
-    # Set session_id before registering so it’s used during registration.
+    # Set session_id before registering so it's used during registration.
     with client.session_transaction() as sess:
         sess['session_id'] = 'test-session-123'
     
@@ -22,7 +25,7 @@ def test_view_orders_empty(client, auth):
     assert b'You have no orders yet' in response.data
 
 
-def test_order_creation_after_checkout(client, app):
+def test_order_creation_after_checkout(client: FlaskClient, app: Flask) -> None:
     """Test that orders are created properly after checkout"""
     # Set session id before registration so the same value is used during registration.
     with client.session_transaction() as sess:
@@ -71,7 +74,7 @@ def test_order_creation_after_checkout(client, app):
         assert order['EmployeeID'] == 999999  # The WEB employee ID
 
 
-def test_multiple_orders_display(client, app):
+def test_multiple_orders_display(client: FlaskClient, app: Flask) -> None:
     """Test that multiple orders are displayed correctly"""
     # Register and login
     client.post('/user/register', data={'username': 'NEWUS', 'password': 'testpass'})
@@ -106,7 +109,7 @@ def test_multiple_orders_display(client, app):
     assert 'Standard' in html  # ShipVia = 1
     assert 'Express' in html   # ShipVia = 2
 
-def test_cart_cleared_after_order(client, app):
+def test_cart_cleared_after_order(client: FlaskClient, app: Flask) -> None:
     """Test that the shopping cart is cleared after successful order placement"""
     # Set the session_id before registration so that it is used during registration.
     with client.session_transaction() as sess:

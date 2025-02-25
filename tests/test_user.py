@@ -1,23 +1,25 @@
 import pytest
-from flask import g, session
+from flask.testing import FlaskClient
+from flask import g, session, Flask
 from flaskr.db import get_db
 from werkzeug.security import check_password_hash
+from typing import Any
 
-class AuthActions(object):
-    def __init__(self, client):
+class AuthActions:
+    def __init__(self, client: FlaskClient):
         self._client = client
 
-    def login(self, username, password):
+    def login(self, username: str, password: str) -> Any:
         return self._client.post('/user/login', data={'username': username, 'password': password})
 
-    def logout(self):
+    def logout(self) -> Any:
         return self._client.get('/user/logout')
 
 @pytest.fixture
-def auth(client):
+def auth(client: FlaskClient) -> AuthActions:
     return AuthActions(client)
 
-def test_register(client, app):
+def test_register(client: FlaskClient, app: Flask) -> None:
     response = client.get('/user/register')
     assert response.status_code == 200
 
@@ -52,7 +54,7 @@ def test_register_failures(client):
     response = client.post('/user/register', data={'username': 'NEWUS', 'password': 'anotherpass'})
     assert b"User NEWUS is already registered." in response.data
 
-def test_login(client, auth):
+def test_login(client: FlaskClient, auth: AuthActions) -> None:
     client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
 
     response = client.get('/user/login')
@@ -67,7 +69,7 @@ def test_login(client, auth):
     with client.session_transaction() as session:
         assert session['user_id'] == 'NEWUS'
 
-def test_login_failures(client, auth):
+def test_login_failures(client: FlaskClient, auth: AuthActions) -> None:
     """测试登录失败的情况"""
     # 用户不存在
     response = auth.login('FAKEU', 'newpassword')
@@ -78,7 +80,7 @@ def test_login_failures(client, auth):
     response = auth.login('NEWUS', 'wrongpassword')
     assert b"Password incorrect" in response.data
 
-def test_logout(client, auth):
+def test_logout(client: FlaskClient, auth: AuthActions) -> None:
     auth.login('NEWUS', 'newpassword')
 
     response = client.get('/user/logout')

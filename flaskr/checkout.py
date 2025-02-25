@@ -1,15 +1,18 @@
-from flask import Blueprint, request, session, redirect, url_for, render_template, flash
+from flask import Blueprint, request, session, redirect, url_for, render_template, flash, Response
+from werkzeug.wrappers import Response as WerkzeugResponse
+from typing import Union, Optional, Dict, Any
 from flaskr.db import get_db
+import sqlite3
 
 checkout_bp = Blueprint('checkout', __name__, url_prefix='/checkout')
 
 @checkout_bp.route('/', methods=['GET', 'POST'])
-def checkout():
+def checkout() -> Union[str, Response, WerkzeugResponse]:
     """Checkout the cart."""
     if 'user_id' not in session or 'session_id' not in session:
         return redirect(url_for('user.login'))
     
-    cart_id = session.get('session_id')
+    cart_id: Any | None = session.get('session_id')
     if not cart_id:
         print("No cart found, redirect to cart view")
         return redirect(url_for('cart.view_cart'))
@@ -39,16 +42,16 @@ def checkout():
         if not user_row:
             return redirect(url_for('user.login'))
 
-        user_id = user_row['UserID']
+        user_id: str = user_row['UserID']
 
         if request.form.get('place_order'):
-            ship_name = request.form['ship_name']
-            ship_address = request.form['ship_address']
-            ship_city = request.form['ship_city']
-            ship_region = request.form.get('ship_region', '')
-            ship_postal_code = request.form.get('ship_postal_code', '')
-            ship_country = request.form['ship_country']
-            ship_via = request.form.get('ship_via', 1)  # Default to 1 for "Standard"
+            ship_name: str = request.form['ship_name']
+            ship_address: str = request.form['ship_address']
+            ship_city: str = request.form['ship_city']
+            ship_region: str = request.form.get('ship_region', '')
+            ship_postal_code: str = request.form.get('ship_postal_code', '')
+            ship_country: str = request.form['ship_country']
+            ship_via: int = int(request.form.get('ship_via', 1))  # Default to 1 for "Standard"
 
             try:
                 # Attempt to insert the order.
@@ -64,7 +67,7 @@ def checkout():
                     ship_city, ship_region, ship_postal_code, ship_country
                 ))
                 db.commit()
-                order_id = cursor.lastrowid
+                order_id: int | None = cursor.lastrowid
 
             except Exception as e:
                 db.rollback()

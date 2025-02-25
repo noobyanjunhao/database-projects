@@ -1,26 +1,28 @@
 import functools
 import uuid
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, g, redirect, render_template, request, session, url_for, Response
 )
+from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.security import check_password_hash, generate_password_hash
 from flaskr.db import get_db
+from typing import Union, Optional, Callable, Any, Dict, TypeVar, cast
 
 bp = Blueprint('user', __name__, url_prefix='/user')
 
+F = TypeVar('F', bound=Callable[..., Any])
 
 @bp.route('/register', methods=('GET', 'POST'))
-def register():
+def register() -> Union[str, WerkzeugResponse]:
     # Get the prefilled username if provided (from a login redirect)
-    prefill_username = request.args.get('username', '')
+    prefill_username: str = request.args.get('username', '')
     if request.method == 'POST':
         # Use the username from the form, falling back to the prefill if necessary.
-        username = request.form.get('username', prefill_username).strip().upper()
-        password = request.form['password']
+        username: str = request.form.get('username', prefill_username).strip().upper()
+        password: str = request.form['password']
         db = get_db()
-        error = None
+        error: Optional[str] = None
 
-# ----------------------------
         # ENFORCE EXACTLY 5 CHARACTERS
         if not username:
             error = 'User ID is required.'
@@ -28,7 +30,6 @@ def register():
             error = 'User ID must be exactly 5 characters.'  # <-- Added line
         elif not password:
             error = 'Password is required.'
-        # ----------------------------
 
         if error is None:
             # Check if the user exists in the Customers table.
@@ -62,15 +63,14 @@ def register():
 
 
 @bp.route('/login', methods=('GET', 'POST'))
-def login():
+def login() -> Union[str, WerkzeugResponse]:
     if request.method == 'POST':
         # Convert username to uppercase so the lookup is case-insensitive.
-        username = request.form['username'].strip().upper()
-        password = request.form['password']
+        username: str = request.form['username'].strip().upper()
+        password: str = request.form['password']
         db = get_db()
-        error = None
+        error: Optional[str] = None
 
- # ----------------------------
         # ENFORCE EXACTLY 5 CHARACTERS
         if not username:
             error = "User ID is required."
@@ -78,7 +78,7 @@ def login():
             error = "User ID must be exactly 5 characters."  # <-- Added line
         elif not password:
             error = "Password is required."
-        # ----------------------------
+        
         if error is None:
             # Look up the user by UserID (which is stored in uppercase) in the Authentication table.
             user = db.execute(
@@ -103,8 +103,8 @@ def login():
 
         if error is None:
             # Credentials are valid.
-            old_session_id = user['SessionID']
-            new_session_id = session['session_id']
+            old_session_id: Optional[str] = user['SessionID']
+            new_session_id: str = session['session_id']
             session['user_id'] = username
 
             if old_session_id != new_session_id:
@@ -125,9 +125,9 @@ def login():
 
 
 @bp.before_app_request
-def load_logged_in_user():
-    user_id = session.get('user_id')
-    session_id = session.get('session_id')
+def load_logged_in_user() -> None:
+    user_id: Optional[str] = session.get('user_id')
+    session_id: Optional[str] = session.get('session_id')
     if user_id is None or session_id is None:
         g.user = None
     else:
@@ -138,7 +138,7 @@ def load_logged_in_user():
 
 
 @bp.route('/logout')
-def logout():
+def logout() -> WerkzeugResponse:
     # Clear the entire Flask session
     session.clear()
     import secrets

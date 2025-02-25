@@ -1,5 +1,6 @@
 import sqlite3
-from flask import g, current_app
+from flask import g, current_app, request, Response
+from typing import Optional, Any
 
 def get_db() -> sqlite3.Connection:
     """获取 SQLite 数据库连接，确保读取 `app.config['DATABASE']`"""
@@ -12,17 +13,17 @@ def get_db() -> sqlite3.Connection:
     return g.db
 
 
-def close_db(e=None) -> None:
+def close_db(e: Optional[BaseException] = None) -> None:
     """关闭数据库连接"""
     db = g.pop("db", None)
     if db is not None:
         db.close()
 
-def init_app(app):
+def init_app(app: Any) -> None:
     """注册数据库相关的函数"""
     app.teardown_appcontext(close_db)
 
-def initialize_northwind():
+def initialize_northwind() -> None:
     """检查 `northwind.db` 是否已有 `Authentication` 和 `Shopping_cart` 表，如果没有，则创建"""
     db = get_db()
 
