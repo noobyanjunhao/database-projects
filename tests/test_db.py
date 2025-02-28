@@ -1,8 +1,10 @@
 import sqlite3
 import pytest
+from flask import Flask
 from flaskr.db import get_db
+from typing import Any, Dict, Generator
 
-def test_get_close_db(app):
+def test_get_close_db(app: Flask) -> None:
     """Test database connection is closed after context."""
     with app.app_context():
         db = get_db()
@@ -17,7 +19,7 @@ def test_get_close_db(app):
     
     assert 'closed' in str(e.value)
 
-def test_database_content(app):
+def test_database_content(app: Flask) -> None:
     """测试数据库是否正确插入了测试数据"""
     with app.app_context():
         db = get_db()

@@ -1,7 +1,10 @@
 import pytest
+from flask.testing import FlaskClient
+from flask import Flask
 from flaskr.db import get_db
+from typing import Any
 
-def test_list_products(client):
+def test_list_products(client: FlaskClient) -> None:
     """Test basic product listing without filters"""
     response = client.get('/products')
     assert response.status_code == 200
@@ -12,7 +15,7 @@ def test_list_products(client):
     assert 'Search products...' in html
     assert 'All Categories' in html
 
-def test_search_products(client, app):
+def test_search_products(client: FlaskClient, app: Flask) -> None:
     """Test product search functionality"""
     # Test search for "Wireless"
     response = client.get('/products?search=Wireless')
@@ -29,7 +32,7 @@ def test_search_products(client, app):
     html = response.get_data(as_text=True)  # Get the new HTML response
     assert 'No matching products found' in html
 
-def test_category_filter(client, app):
+def test_category_filter(client: FlaskClient, app: Flask) -> None:
     """Test category filtering"""
     # Test category 1 (from test data)
     response = client.get('/products?category=1')
@@ -60,7 +63,7 @@ def test_invalid_category(client):
     assert 'Wireless Mouse' in html
     assert 'Keyboard' in html
 
-def test_empty_search(client):
+def test_empty_search(client: FlaskClient) -> None:
     """Test empty search string behavior"""
     response = client.get('/products?search=')
     assert response.status_code == 200
@@ -70,7 +73,7 @@ def test_empty_search(client):
     assert 'Wireless Mouse' in html
     assert 'Keyboard' in html
 
-def test_product_details_display(client):
+def test_product_details_display(client: FlaskClient) -> None:
     """Test if product details are correctly displayed"""
     response = client.get('/products')
     assert response.status_code == 200

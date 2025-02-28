@@ -1,10 +1,13 @@
 # tests/test_cart.py
 import pytest
+from flask.testing import FlaskClient
+from flask import Flask
 from flaskr.db import get_db
 from datetime import datetime, timedelta
 from flaskr.cart import get_est_time
+from typing import Dict, Any
 
-def test_view_cart_empty(client):
+def test_view_cart_empty(client: FlaskClient) -> None:
     """
     If the cart is empty, the template should show no items.
     By default, session['session_id'] might not be set.
@@ -22,7 +25,7 @@ def test_view_cart_empty(client):
     assert "ProductName" not in html
     assert "Quantity" not in html
 
-def test_add_to_cart(client):
+def test_add_to_cart(client: FlaskClient) -> None:
     """
     POST to /cart/add/ with a product_id and quantity.
     Then verify that the cart has that item.
@@ -37,6 +40,7 @@ def test_add_to_cart(client):
     })
     # The route returns JSON {"status": "success", "message": "..."}
     assert response.status_code == 200
+    assert response.json is not None  # Check that json exists
     assert response.json.get('status') == 'success'
     
     # Now view the cart
@@ -73,6 +77,7 @@ def test_add_to_cart(client):
 
     # The route returns JSON {"status": "success", "message": "..."}
     assert response.status_code == 200
+    assert response.json is not None  # Check that json exists
     assert response.json.get('status') == 'success'
 
     # Now view the cart
@@ -93,7 +98,7 @@ def test_add_to_cart(client):
         assert row is not None
         assert row['Quantity'] == 2
 
-def test_remove_from_cart(client):
+def test_remove_from_cart(client: FlaskClient) -> None:
     """
     First add an item, then remove it.
     Finally, confirm it no longer appears in the cart or DB.
@@ -124,7 +129,7 @@ def test_remove_from_cart(client):
         """, ('test-session-123', '42')).fetchone()
         assert row is None
 
-def test_cleanup_old_cart_entries(app):
+def test_cleanup_old_cart_entries(app: Flask) -> None:
     """
     Directly test the cleanup_old_cart_entries function by inserting
     an old row and verifying that it gets removed.

@@ -1,11 +1,13 @@
 import os
-from flask import Flask
+from flask import Flask, session
+import secrets
 from flask_sqlalchemy import SQLAlchemy
 from flaskr.db import get_db, initialize_northwind
+from typing import Optional, Dict, Any
 
 db = SQLAlchemy()
 
-def create_app(test_config=None) -> Flask:
+def create_app(test_config: Optional[Dict[str, Any]] = None) -> Flask:
     app = Flask(__name__, instance_relative_config=True)
 
     db_path = "northwind.db" 
@@ -31,12 +33,9 @@ def create_app(test_config=None) -> Flask:
 
 
     @app.before_request
-    def ensure_session_id():
+    def ensure_session_id() -> None:
         # 1. Check if session_id is present in the Flask session
         # 2. If not, create one
-        from flask import session
-        import secrets
-
         if 'session_id' not in session:
             session['session_id'] = secrets.token_hex(16)
 
