@@ -86,3 +86,98 @@ def test_logout(client: FlaskClient, auth: AuthActions) -> None:
     response = client.get('/user/logout')
     assert response.headers['Location'] == '/products'
 
+
+
+def test_login_no_username(client, auth):
+    """Test login with an empty username field."""
+    response = auth.login('', 'somepassword')
+    assert response.status_code == 200
+    assert b"User ID is required." in response.data
+
+
+def test_login_wrong_length_username(client, auth):
+    """Test login with a username that isn't exactly 5 characters."""
+    response = auth.login('AB', 'somepassword')  # Only 2 chars
+    assert response.status_code == 200
+    assert b"User ID must be exactly 5 characters." in response.data
+
+
+def test_login_no_password(client, auth):
+    """Test login with an empty password field."""
+    response = auth.login('ABCDE', '')
+    assert response.status_code == 200
+    assert b"Password is required." in response.data
+
+
+def test_login_customer_not_finished_registering(client, app):
+    """Test the case where user is in Customers but not in Authentication."""
+    with app.app_context():
+        db = get_db()
+        # Insert a customer row but no corresponding Authentication record.
+        db.execute("INSERT INTO Customers (CustomerID) VALUES (?)", ("ABCDX",))
+        db.commit()
+
+    # Attempt to log in with the customer.
+    # Use follow_redirects=True to follow the redirect to the registration page.
+    response = client.post(
+        '/user/login',
+        data={'username': 'ABCDX', 'password': 'somepassword'},
+        follow_redirects=True
+    )
+    # Now the final response should have a 200 status code.
+    assert response.status_code == 200
+    # The registration page should be rendered (e.g., it contains the registration form).
+    assert b"register" in response.data.lower()
+    # Verify that the flash message is present.
+    assert b"Username exists but has not finished registering." in response.data
+
+
+def test_login_with_different_session_ids(client, app):
+    """
+    Test that the 'UPDATE Shopping_cart' and 'UPDATE Authentication' queries
+    run when the user's old session ID doesn't match the current session ID.
+    """
+    from werkzeug.security import generate_password_hash
+    from flaskr.db import get_db
+
+    old_session = "oldsession123"
+    new_session = "newsession456"
+
+    # 1) Insert a user into Authentication with a known old_session ID
+    with app.app_context():
+        db = get_db()
+        db.execute(
+            """
+            INSERT INTO Authentication (UserID, PasswordHash, SessionID)
+            VALUES (?, ?, ?)
+            """,
+            ("ABCDE", generate_password_hash("secret"), old_session),
+        )
+        db.commit()
+
+    # 2) Force the test client's session to be new_session
+    #    so when we log in, the code sees old_session != new_session
+    with client.session_transaction() as sess:
+        sess["session_id"] = new_session
+
+    # 3) Log in with the user "ABCDE" whose DB session is old_session
+    response = client.post(
+        "/user/login",
+        data={"username": "ABCDE", "password": "secret"},
+        follow_redirects=True,
+    )
+    # This should trigger the if old_session_id != new_session_id branch
+
+    # 4) Assert that we do indeed reach a successful page
+    assert response.status_code == 200
+    # Optionally check the final page content
+    assert b"products" in response.data.lower() or b"some known text" in response.data.lower()
+
+    # 5) Confirm the DB was updated with the new_session
+    with app.app_context():
+        db = get_db()
+        row = db.execute(
+            "SELECT SessionID FROM Authentication WHERE UserID = ?", ("ABCDE",)
+        ).fetchone()
+        assert row is not None
+        assert row["SessionID"] == new_session
