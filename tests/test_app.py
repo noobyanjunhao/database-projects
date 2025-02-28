@@ -1,9 +1,12 @@
+"""Module tests for app functionality."""
+
+import sqlite3
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
-from typing import Any
-import sqlite3
 from flaskr.db import get_db
+from tests.test_helpers import verify_database_content
+
 
 def test_homepage(client: FlaskClient) -> None:
     """
@@ -15,12 +18,14 @@ def test_homepage(client: FlaskClient) -> None:
     assert "Welcome to TJ's Shopping" in html  # 确保首页包含标题
     assert "Start Shopping" in html  # 确保按钮文本存在
 
+
 def test_static_assets(client: FlaskClient) -> None:
     """
     测试静态资源是否可以正确加载（如 CSS 文件）
     """
     response = client.get("/static/style.css")
     assert response.status_code == 200
+
 
 def test_cart_page(client: FlaskClient) -> None:
     """
@@ -31,6 +36,7 @@ def test_cart_page(client: FlaskClient) -> None:
     html = response.get_data(as_text=True)
     assert "Shopping Cart" in html  # 确保购物车页面正确渲染
 
+
 def test_checkout_page_from_empty_cart(client: FlaskClient) -> None:
     """
     测试结账页面是否可访问 when cart is empty.
@@ -39,11 +45,12 @@ def test_checkout_page_from_empty_cart(client: FlaskClient) -> None:
     with client.session_transaction() as sess:
         sess['user_id'] = 'SOMEUSER'
         sess['session_id'] = 'some-session'
-    
+
     # Option A: If the cart is empty, expect a redirect to /cart/
     response = client.get("/checkout/")
     assert response.status_code == 302
     assert response.headers['Location'] == '/cart/'
+
 
 def test_checkout_page_from_non_empty_cart(client: FlaskClient) -> None:
     """
@@ -53,15 +60,16 @@ def test_checkout_page_from_non_empty_cart(client: FlaskClient) -> None:
     with client.session_transaction() as sess:
         sess['user_id'] = 'SOMEUSER'
         sess['session_id'] = 'some-session'
-    
+
     # Add an item to the cart so the cart is not empty.
     client.post('/cart/add/', data={'product_id': '1', 'quantity': '1'})
-    
+
     # Now, GET the checkout page.
     response = client.get("/checkout/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "Checkout" in html  # 确保结账页面正确渲染
+
 
 def test_products_page(client: FlaskClient) -> None:
     """
@@ -72,6 +80,7 @@ def test_products_page(client: FlaskClient) -> None:
     html = response.get_data(as_text=True)
     assert "Products" in html  # 确保产品页面正确渲染
 
+
 def test_orders_page(client):
     """
     测试订单页面是否可访问
@@ -80,11 +89,12 @@ def test_orders_page(client):
     with client.session_transaction() as sess:
         sess['user_id'] = 'NEWUS'
         sess['session_id'] = 'test-session-123'
-    
+
     response = client.get("/orders/")
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "Orders" in html  # 确保订单页面正确渲染
+
 
 def test_login_page(client):
     """
@@ -95,6 +105,7 @@ def test_login_page(client):
     html = response.get_data(as_text=True)
     assert "Log In" in html  # 确保登录页面正确渲染
 
+
 def test_register_page(client):
     """
     测试注册页面是否可访问
@@ -103,6 +114,7 @@ def test_register_page(client):
     assert response.status_code == 200
     html = response.get_data(as_text=True)
     assert "Register" in html  # 确保注册页面正确渲染
+
 
 def test_logout_redirect(client):
     """
@@ -113,6 +125,7 @@ def test_logout_redirect(client):
     html = response.get_data(as_text=True)
     assert "Log In" in html  # 注销后应该回到登录页面
 
+
 def test_hello_route(client):
     """
     测试 `/hello` 端点是否返回正确的字符串
@@ -121,33 +134,24 @@ def test_hello_route(client):
     assert response.status_code == 200
     assert response.data == b"Hello, World!"
 
+
 def test_get_close_db(app: Flask) -> None:
     """Test database connection is closed after context."""
     with app.app_context():
         db = get_db()
         assert db is get_db()
-        
+
     # Explicitly close the database connection
     db.close()
 
     # Try to execute a query after the context is closed
     with pytest.raises(sqlite3.ProgrammingError) as e:
         db.execute('SELECT 1')
-    
     assert 'closed' in str(e.value)
+
 
 def test_database_content(app: Flask) -> None:
     """测试数据库是否正确插入了测试数据"""
     with app.app_context():
         db = get_db()
-
-        # 检查 Customers 表
-        customer = db.execute("SELECT * FROM Customers WHERE CustomerID = 'CUST1'").fetchone()
-        assert customer is not None
-        assert customer["CompanyName"] == "Tech Solutions"
-
-        # 检查 Products 表
-        product = db.execute("SELECT * FROM Products WHERE ProductName = 'Wireless Mouse'").fetchone()
-        assert product is not None
-        assert product["UnitPrice"] == 25.99
-
+        verify_database_content(db)

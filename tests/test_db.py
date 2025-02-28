@@ -1,12 +1,14 @@
 """Module tests for database functionality."""
 
 import sqlite3
+
 import pytest
 from flask import Flask
-from flaskr.db import get_db, init_app, initialize_northwind, close_db
 
-# 将 flaskr 模块的导入移至文件顶部，避免出现 "import outside toplevel" 警告
+from flaskr.db import get_db, init_app, initialize_northwind, close_db
 from flaskr import db as db_module
+
+from tests.test_helpers import verify_database_content
 
 
 # pylint: disable=unused-argument
@@ -33,18 +35,19 @@ def test_database_content(app: Flask) -> None:
     """测试数据库是否正确插入了测试数据"""
     with app.app_context():
         db = get_db()
-        # 检查 Customers 表
-        customer = db.execute(
-            "SELECT * FROM Customers WHERE CustomerID = 'CUST1'"
-        ).fetchone()
-        assert customer is not None
-        assert customer["CompanyName"] == "Tech Solutions"
-        # 检查 Products 表
-        product = db.execute(
-            "SELECT * FROM Products WHERE ProductName = 'Wireless Mouse'"
-        ).fetchone()
-        assert product is not None
-        assert product["UnitPrice"] == 25.99
+        verify_database_content(db)
+        # # 检查 Customers 表
+        # customer = db.execute(
+        #     "SELECT * FROM Customers WHERE CustomerID = 'CUST1'"
+        # ).fetchone()
+        # assert customer is not None
+        # assert customer["CompanyName"] == "Tech Solutions"
+        # # 检查 Products 表
+        # product = db.execute(
+        #     "SELECT * FROM Products WHERE ProductName = 'Wireless Mouse'"
+        # ).fetchone()
+        # assert product is not None
+        # assert product["UnitPrice"] == 25.99
 
 
 def test_init_app(app: Flask) -> None:
