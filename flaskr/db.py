@@ -26,7 +26,7 @@ def get_db() -> sqlite3.Connection:
     return g.db
 
 
-def close_db() -> None:
+def close_db(e=None) -> None:
     """
     Close the database connection if it exists.
 
