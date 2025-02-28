@@ -1,4 +1,9 @@
-# tests/test_helpers.py
+"""Helper functions for test modules.
+
+This module contains helper functions to verify that the test database contains
+the expected data for Customers and Products.
+"""
+
 def verify_database_content(db):
     """
     Verify that the test database has the expected data:
