@@ -125,22 +125,18 @@ def checkout() -> Union[str, FlaskResponse, WerkzeugResponse]:
                 flash(f"An error occurred during order placement: {e}", "danger")
                 return redirect(url_for("cart.view_cart"))
 
-            try:
 
-                db.execute("DELETE FROM Shopping_cart WHERE ShopperID = ?", (cart_id,))
-                db.commit()
+            db.execute("DELETE FROM Shopping_cart WHERE ShopperID = ?", (cart_id,))
+            db.commit()
 
-                db.execute(
-                    "DELETE FROM Shopping_cart WHERE AddedAt < datetime('now', '-1 month')"
-                )
-                db.commit()
+            db.execute(
+                "DELETE FROM Shopping_cart WHERE AddedAt < datetime('now', '-1 month')"
+            )
+            db.commit()
 
-                flash("Order placed successfully, thank you!")
-                return redirect(url_for("orders.view_orders"))
-            except Exception as e:
-                db.rollback()
-                flash(f"An error occurred while clearing your cart: {e}", "danger")
-                return redirect(url_for("cart.view_cart"))
+            flash("Order placed successfully, thank you!")
+            return redirect(url_for("orders.view_orders"))
+            
         else:
             return redirect(url_for("cart.view_cart"))
 
