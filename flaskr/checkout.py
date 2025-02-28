@@ -59,16 +59,11 @@ def checkout() -> Union[str, FlaskResponse, WerkzeugResponse]:
         return redirect(url_for("cart.view_cart"))
 
     if request.method == "POST":
-        if "user_id" not in session or "session_id" not in session:
-            return redirect(url_for("user.login"))
 
         user_row = db.execute(
             "SELECT UserID FROM Authentication WHERE UserID = ? AND SessionID = ?",
             (session["user_id"], session["session_id"]),
         ).fetchone()
-
-        if not user_row:
-            return redirect(url_for("user.login"))
 
         user_id: str = user_row["UserID"]
 
