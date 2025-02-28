@@ -1,4 +1,3 @@
-# pylint: disable=too-many-locals, too-many-return-statements, broad-exception-caught
 """
 Checkout module for handling the cart checkout process.
 
