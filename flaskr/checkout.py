@@ -54,6 +54,14 @@ def checkout() -> Union[str, Response, WerkzeugResponse]:
             ship_via: int = int(request.form.get('ship_via', 1))  # Default to 1 for "Standard"
 
             try:
+                # Get the employee ID for "WEB 99999" from the Employees table
+                employee = db.execute("""
+                    SELECT EmployeeID FROM Employees 
+                    WHERE LastName = 'WEB' AND EmployeeID = 99999
+                """).fetchone()
+                
+                employee_id = employee['EmployeeID'] if employee else 99999  # Fallback to 99999 if not found
+                
                 # Attempt to insert the order.
                 cursor = db.execute("""
                     INSERT INTO Orders (
@@ -63,7 +71,7 @@ def checkout() -> Union[str, Response, WerkzeugResponse]:
                     )
                     VALUES (?, ?, CURRENT_TIMESTAMP, NULL, NULL, ?, 0, ?, ?, ?, ?, ?, ?)
                 """, (
-                    user_id, 999999, ship_via, ship_name, ship_address, 
+                    user_id, employee_id, ship_via, ship_name, ship_address, 
                     ship_city, ship_region, ship_postal_code, ship_country
                 ))
                 db.commit()
