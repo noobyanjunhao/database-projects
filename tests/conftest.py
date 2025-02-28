@@ -1,29 +1,30 @@
+"""Test configuration for setting up the Flask app, database, and authentication fixtures."""
+
 import os
 import tempfile
-import pytest
-import sys
-from flaskr import create_app
-from flaskr.db import get_db
-from flask import Flask
 import sqlite3
 from typing import Generator, Callable, Any
 
+import pytest
+from flask import Flask
+
+from flaskr import create_app
+
+
 # 读取 `data.sql` 文件的内容
-with open(
-    os.path.join(os.path.dirname(__file__), "data.sql"), "r", encoding="utf8"
-) as f:
+with open(os.path.join(os.path.dirname(__file__), "data.sql"), "r", encoding="utf8") as f:
     _data_sql = f.read()
 
 
 @pytest.fixture
 def app() -> Generator[Flask, None, None]:
-    """Create a Flask test app and use a temporary database."""
-    db_fd, db_path = tempfile.mkstemp()  # Create a temporary database file
+    """Create a Flask test app with a temporary database."""
+    db_fd, db_path = tempfile.mkstemp()  # 创建临时数据库文件
 
-    # First create an initial database with tables and test data
+    # 初始化数据库
     db = sqlite3.connect(db_path)
     try:
-        db.executescript(_data_sql)  # Create tables and insert test data
+        db.executescript(_data_sql)  # 执行 SQL 脚本，创建表并插入测试数据
         db.commit()
     except Exception as e:
         print(f"Error initializing test database: {e}")
@@ -31,37 +32,38 @@ def app() -> Generator[Flask, None, None]:
     finally:
         db.close()
 
-    # Now create the app with the pre-initialized database
-    app = create_app(
+    # 创建 Flask 应用实例，并指定数据库路径
+    app_instance = create_app(
         {
             "TESTING": True,
-            "DATABASE": db_path,  # Specify the temporary database path
+            "DATABASE": db_path,  # 指定临时数据库路径
         }
     )
 
-    yield app
+    yield app_instance
 
     os.close(db_fd)
-    os.unlink(db_path)  # Remove the temporary database file
+    os.unlink(db_path)  # 删除临时数据库文件
 
 
 @pytest.fixture
 def client(app: Flask) -> Any:
-    """创建 Flask 测试客户端"""
+    """Create a Flask test client."""
     return app.test_client()
 
 
 @pytest.fixture
-def runner(app):
-    """创建 Flask CLI 运行器"""
+def runner(app: Flask) -> Any:
+    """Create a Flask CLI runner."""
     return app.test_cli_runner()
 
 
 @pytest.fixture
-def auth(client: Any) -> Callable[[str, str], Any]:
-    """A fixture to handle authentication for tests."""
+def auth(client: Flask) -> Callable[[str, str], Any]:
+    """A fixture to handle user authentication for tests."""
 
     def login(username: str, password: str) -> Any:
+        """Login helper function for test authentication."""
         return client.post(
             "/user/login", data={"username": username, "password": password}
         )

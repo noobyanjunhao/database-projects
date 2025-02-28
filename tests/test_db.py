@@ -1,11 +1,17 @@
+"""Module tests for database functionality."""
+
 import sqlite3
 import pytest
 from flask import Flask
 from flaskr.db import get_db, init_app, initialize_northwind, close_db
 
+# 将 flaskr 模块的导入移至文件顶部，避免出现 "import outside toplevel" 警告
+from flaskr import db as db_module
 
-# Patch function to wrap close_db so it can accept an argument.
+
+# pylint: disable=unused-argument
 def patched_close_db(e=None):
+    """Wrapper for close_db to accept an extra argument without using it."""
     # Call the original close_db without passing any argument.
     close_db()
 
@@ -44,13 +50,11 @@ def test_database_content(app: Flask) -> None:
 def test_init_app(app: Flask) -> None:
     """Test that init_app registers the close_db function correctly via teardown."""
     # Patch the teardown function so it accepts the extra argument.
-    from flaskr import db as db_module
-
     db_module.close_db = patched_close_db
     init_app(app)
     with app.app_context():
         conn = get_db()
-    # When the context exits, Flask calls the patched teardown (which calls close_db without arguments).
+    # When the context exits, Flask calls the patched teardown.
     with pytest.raises(sqlite3.ProgrammingError) as e:
         conn.execute("SELECT 1")
     assert "closed" in str(e.value)
@@ -69,12 +73,13 @@ def test_initialize_northwind(app: Flask) -> None:
                 LastName TEXT NOT NULL,
                 FirstName TEXT NOT NULL
             )
-        """
+            """
         )
         db.commit()
         # Call initialize_northwind which should insert the default employee.
         initialize_northwind()
-        emp = db.execute("SELECT * FROM Employees WHERE EmployeeID = 999999").fetchone()
+        query = "SELECT * FROM Employees WHERE EmployeeID = 999999"
+        emp = db.execute(query).fetchone()
         assert emp is not None
         assert emp["LastName"] == "WEB"
         assert emp["FirstName"] == "WEB"
