@@ -5,12 +5,8 @@
 {% block content %}
 <div class="checkout-container">
     <h1>Checkout</h1>
-
     <p class="checkout-description">Please confirm your order details before proceeding.</p>
-
     <a href="{{ url_for('cart.view_cart') }}" class="cancel-btn">Cancel and Return to Cart</a>
-
-    <!-- 订单确认表单 -->
     <form class="checkout-form" action="" method="POST">
         <div>
             <label for="ship_name">Full Name:</label>

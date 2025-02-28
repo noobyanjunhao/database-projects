@@ -1,11 +1,28 @@
-from flask import Blueprint, render_template, request
-from flaskr.db import get_db
+"""
+Products module for listing and searching products.
+
+Allows filtering by search query and optional category ID,
+then displays the results on a homepage template.
+"""
+
 from typing import Dict, List, Any
+
+from flask import Blueprint, render_template, request
+
+from flaskr.db import get_db
+
 
 products_bp = Blueprint("products", __name__)
 
+
 @products_bp.route("/products", methods=["GET"])
 def list_products() -> str:
+    """
+    Fetch and display products based on search query and/or category ID.
+
+    Returns:
+        str: The rendered HTML of the products homepage with filtered product list.
+    """
     db = get_db()
 
     search_query: str = request.args.get("search", "").strip()
@@ -24,5 +41,5 @@ def list_products() -> str:
 
     products = db.execute(sql_query, params).fetchall()
     products_list: List[Dict[str, Any]] = [dict(row) for row in products]
-    
+
     return render_template("products/homepage.html", products=products_list)

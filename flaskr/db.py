@@ -1,53 +1,87 @@
+"""
+Database module for managing SQLite connections and initialization.
+
+This module provides functions to establish a database connection,
+close connections, and initialize the required tables in `northwind.db`.
+"""
+
 import sqlite3
-from flask import g, current_app, request, Response
-from typing import Optional, Any
+from typing import Any
+
+from flask import g, current_app
+
 
 def get_db() -> sqlite3.Connection:
-    """获取 SQLite 数据库连接，确保读取 `app.config['DATABASE']`"""
+    """
+    Get the SQLite database connection, ensuring it reads from `app.config['DATABASE']`.
+
+    Returns:
+        sqlite3.Connection: The SQLite database connection.
+    """
     if "db" not in g:
         g.db = sqlite3.connect(
-            current_app.config["DATABASE"],  # ✅ 确保这里是 `app.config["DATABASE"]`
-            detect_types=sqlite3.PARSE_DECLTYPES
+            current_app.config["DATABASE"], detect_types=sqlite3.PARSE_DECLTYPES
         )
-        g.db.row_factory = sqlite3.Row  # 让查询结果支持字典访问
+        g.db.row_factory = sqlite3.Row
     return g.db
 
 
-def close_db(e: Optional[BaseException] = None) -> None:
-    """关闭数据库连接"""
+def close_db() -> None:
+    """
+    Close the database connection if it exists.
+
+    This function is registered with Flask's `teardown_appcontext` to ensure
+    the database connection is properly closed after each request.
+    """
     db = g.pop("db", None)
     if db is not None:
         db.close()
 
+
 def init_app(app: Any) -> None:
-    """注册数据库相关的函数"""
+    """
+    Register database-related functions with the Flask app.
+
+    This ensures that `close_db()` is called automatically when the application context ends.
+
+    Args:
+        app (Any): The Flask application instance.
+    """
     app.teardown_appcontext(close_db)
 
+
 def initialize_northwind() -> None:
-    """检查 `northwind.db` 是否已有 `Authentication` 和 `Shopping_cart` 表，如果没有，则创建"""
+    """
+    Ensure the `northwind.db` database has the required tables.
+
+    This function checks if the `Authentication` and `Shopping_cart` tables exist,
+    and creates them if necessary. It also inserts a default employee entry.
+    """
     db = get_db()
 
-    # ✅ 1. 创建 `Authentication` 表（不依赖其他表）
-    db.execute("""
+    db.execute(
+        """
         CREATE TABLE IF NOT EXISTS Authentication (
             UserID TEXT PRIMARY KEY,
             PasswordHash TEXT NOT NULL,
             SessionID TEXT
         );
-    """)
+        """
+    )
 
-    # ✅ 2. 确保 Products 表存在（如果不存在则创建）
-    db.execute("""
+    db.execute(
+        """
         CREATE TABLE IF NOT EXISTS Products (
             ProductID INTEGER PRIMARY KEY,
             ProductName TEXT NOT NULL,
             UnitPrice REAL,
             UnitsInStock INTEGER
         );
-    """)
+        """
+    )
 
-    # ✅ 3. 创建 Shopping_cart 表（现在可以安全地引用 Products 表）
-    db.execute("""
+    db.execute(
+        """
         CREATE TABLE IF NOT EXISTS Shopping_cart (
             ShopperID INTEGER NOT NULL,
             ProductID INTEGER NOT NULL,
@@ -56,15 +90,17 @@ def initialize_northwind() -> None:
             FOREIGN KEY (ProductID) REFERENCES Products(ProductID),
             PRIMARY KEY (ShopperID, ProductID)
         );
-    """)
+        """
+    )
 
-    # ✅ 4. 在 `Employees` 表中插入 `EmployeeID=999999`（如果它还不存在）
-    db.execute("""
+    db.execute(
+        """
         INSERT INTO Employees (EmployeeID, LastName, FirstName)
         SELECT 999999, 'WEB', 'WEB'
         WHERE NOT EXISTS (
             SELECT 1 FROM Employees WHERE EmployeeID = 999999
         );
-    """)
+        """
+    )
 
     db.commit()

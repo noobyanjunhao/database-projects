@@ -8,7 +8,6 @@
         <h2>Our Products</h2>
     </div>
 
-    <!-- Search and Filter Section -->
     <div class="search-filter-container">
         <form method="get" action="{{ url_for('products.list_products') }}">
             <div class="search-container">
@@ -32,7 +31,7 @@
         </form>
     </div>
 
-    <!-- Products Grid -->
+
     {% if products %}
     <div class="products-grid">
         {% for product in products %}

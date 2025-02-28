@@ -5,8 +5,6 @@
 {% block content %}
 <div class="orders-container">
     <h1 class="orders-title">Your Orders</h1>
-
-    <!-- Flash 消息 -->
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         <div class="flash-messages">

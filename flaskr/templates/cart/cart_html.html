@@ -5,8 +5,6 @@
 {% block content %}
 <div class="cart-container">
     <h1 class="cart-title">Shopping Cart</h1>
-
-    <!-- Flash 消息 -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         <div class="flash-messages">
@@ -18,7 +16,6 @@
         </div>
       {% endif %}
     {% endwith %}
-
     {% if items %}
     <div class="cart-items">
         {% for item in items %}
@@ -37,7 +34,6 @@
         </div>
         {% endfor %}
     </div>
-
     <div class="cart-summary">
         <h2>Cart Total: ${{ "%.2f"|format(total) }}</h2>
         <a href="{{ url_for('checkout.checkout') }}" class="checkout-btn">Proceed to Checkout</a>
