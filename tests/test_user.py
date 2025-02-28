@@ -5,106 +5,124 @@ from flaskr.db import get_db
 from werkzeug.security import check_password_hash
 from typing import Any
 
+
 class AuthActions:
     def __init__(self, client: FlaskClient):
         self._client = client
 
     def login(self, username: str, password: str) -> Any:
-        return self._client.post('/user/login', data={'username': username, 'password': password})
+        return self._client.post(
+            "/user/login", data={"username": username, "password": password}
+        )
 
     def logout(self) -> Any:
-        return self._client.get('/user/logout')
+        return self._client.get("/user/logout")
+
 
 @pytest.fixture
 def auth(client: FlaskClient) -> AuthActions:
     return AuthActions(client)
 
+
 def test_register(client: FlaskClient, app: Flask) -> None:
-    response = client.get('/user/register')
+    response = client.get("/user/register")
     assert response.status_code == 200
 
     # 注册成功
-    response = client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
+    response = client.post(
+        "/user/register", data={"username": "NEWUS", "password": "newpassword"}
+    )
     assert response.status_code == 302
-    assert response.headers['Location'] == '/user/login'
+    assert response.headers["Location"] == "/user/login"
 
     # 验证数据库
     with app.app_context():
         db = get_db()
-        user = db.execute("SELECT * FROM Authentication WHERE UserID = 'NEWUS'").fetchone()
+        user = db.execute(
+            "SELECT * FROM Authentication WHERE UserID = 'NEWUS'"
+        ).fetchone()
         assert user is not None
-        assert check_password_hash(user['PasswordHash'], 'newpassword')
+        assert check_password_hash(user["PasswordHash"], "newpassword")
+
 
 def test_register_failures(client):
     """测试注册失败的情况"""
     # 用户 ID 太短
-    response = client.post('/user/register', data={'username': 'AB', 'password': 'newpassword'})
+    response = client.post(
+        "/user/register", data={"username": "AB", "password": "newpassword"}
+    )
     assert b"User ID must be exactly 5 characters." in response.data
 
     # 用户 ID 为空
-    response = client.post('/user/register', data={'username': '', 'password': 'newpassword'})
+    response = client.post(
+        "/user/register", data={"username": "", "password": "newpassword"}
+    )
     assert b"User ID is required." in response.data
 
     # 密码为空
-    response = client.post('/user/register', data={'username': 'ABCDE', 'password': ''})
+    response = client.post("/user/register", data={"username": "ABCDE", "password": ""})
     assert b"Password is required." in response.data
 
     # 用户已存在
-    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
-    response = client.post('/user/register', data={'username': 'NEWUS', 'password': 'anotherpass'})
+    client.post("/user/register", data={"username": "NEWUS", "password": "newpassword"})
+    response = client.post(
+        "/user/register", data={"username": "NEWUS", "password": "anotherpass"}
+    )
     assert b"User NEWUS is already registered." in response.data
 
-def test_login(client: FlaskClient, auth: AuthActions) -> None:
-    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
 
-    response = client.get('/user/login')
+def test_login(client: FlaskClient, auth: AuthActions) -> None:
+    client.post("/user/register", data={"username": "NEWUS", "password": "newpassword"})
+
+    response = client.get("/user/login")
     assert response.status_code == 200
 
     # 正确登录
-    response = auth.login('NEWUS', 'newpassword')
+    response = auth.login("NEWUS", "newpassword")
     assert response.status_code == 302
-    assert response.headers['Location'] == '/products'
+    assert response.headers["Location"] == "/products"
 
     # 确保 session 被正确设置
     with client.session_transaction() as session:
-        assert session['user_id'] == 'NEWUS'
+        assert session["user_id"] == "NEWUS"
+
 
 def test_login_failures(client: FlaskClient, auth: AuthActions) -> None:
     """测试登录失败的情况"""
     # 用户不存在
-    response = auth.login('FAKEU', 'newpassword')
+    response = auth.login("FAKEU", "newpassword")
     assert b"Username not found" in response.data
 
     # 密码错误
-    client.post('/user/register', data={'username': 'NEWUS', 'password': 'newpassword'})
-    response = auth.login('NEWUS', 'wrongpassword')
+    client.post("/user/register", data={"username": "NEWUS", "password": "newpassword"})
+    response = auth.login("NEWUS", "wrongpassword")
     assert b"Password incorrect" in response.data
 
+
 def test_logout(client: FlaskClient, auth: AuthActions) -> None:
-    auth.login('NEWUS', 'newpassword')
+    auth.login("NEWUS", "newpassword")
 
-    response = client.get('/user/logout')
-    assert response.headers['Location'] == '/products'
-
+    response = client.get("/user/logout")
+    assert response.headers["Location"] == "/products"
 
 
 def test_login_no_username(client, auth):
     """Test login with an empty username field."""
-    response = auth.login('', 'somepassword')
+    response = auth.login("", "somepassword")
     assert response.status_code == 200
     assert b"User ID is required." in response.data
 
 
 def test_login_wrong_length_username(client, auth):
     """Test login with a username that isn't exactly 5 characters."""
-    response = auth.login('AB', 'somepassword')  # Only 2 chars
+    response = auth.login("AB", "somepassword")  # Only 2 chars
     assert response.status_code == 200
     assert b"User ID must be exactly 5 characters." in response.data
 
 
 def test_login_no_password(client, auth):
     """Test login with an empty password field."""
-    response = auth.login('ABCDE', '')
+    response = auth.login("ABCDE", "")
     assert response.status_code == 200
     assert b"Password is required." in response.data
 
@@ -120,9 +138,9 @@ def test_login_customer_not_finished_registering(client, app):
     # Attempt to log in with the customer.
     # Use follow_redirects=True to follow the redirect to the registration page.
     response = client.post(
-        '/user/login',
-        data={'username': 'ABCDX', 'password': 'somepassword'},
-        follow_redirects=True
+        "/user/login",
+        data={"username": "ABCDX", "password": "somepassword"},
+        follow_redirects=True,
     )
     # Now the final response should have a 200 status code.
     assert response.status_code == 200
@@ -171,7 +189,10 @@ def test_login_with_different_session_ids(client, app):
     # 4) Assert that we do indeed reach a successful page
     assert response.status_code == 200
     # Optionally check the final page content
-    assert b"products" in response.data.lower() or b"some known text" in response.data.lower()
+    assert (
+        b"products" in response.data.lower()
+        or b"some known text" in response.data.lower()
+    )
 
     # 5) Confirm the DB was updated with the new_session
     with app.app_context():

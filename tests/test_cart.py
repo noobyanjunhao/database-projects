@@ -39,7 +39,7 @@ def test_add_to_cart(client: FlaskClient) -> None:
     })
     # The route returns JSON {"status": "success", "message": "..."}
     assert response.status_code == 200
-    assert response.json is not None
+    assert response.json is not None, "Response JSON is None"
     assert response.json.get('status') == 'success'
     
     # Now view the cart
@@ -114,7 +114,8 @@ def test_add_to_cart_no_quantity(client: FlaskClient) -> None:
     # Add item with no quantity field
     response = client.post('/cart/add/', data={'product_id': '99'})
     assert response.status_code == 200
-    assert response.json.get('status') == 'success'
+    assert (response.json or {}).get('status') == 'success'
+    # assert response.json.get('status') == 'success'
 
     with client.application.app_context():
         db = get_db()

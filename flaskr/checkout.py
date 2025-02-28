@@ -131,8 +131,6 @@ def checkout() -> Union[str, FlaskResponse, WerkzeugResponse]:
 
             flash("Order placed successfully, thank you!")
             return redirect(url_for("orders.view_orders"))
-            
-        else:
-            return redirect(url_for("cart.view_cart"))
+        return redirect(url_for("cart.view_cart"))
 
     return render_template("cart/checkout.html")
