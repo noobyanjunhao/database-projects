@@ -57,10 +57,10 @@ def checkout() -> Union[str, Response, WerkzeugResponse]:
                 # Get the employee ID for "WEB 99999" from the Employees table
                 employee = db.execute("""
                     SELECT EmployeeID FROM Employees 
-                    WHERE LastName = 'WEB' AND EmployeeID = 99999
+                    WHERE LastName = 'WEB' AND EmployeeID = 999999
                 """).fetchone()
                 
-                employee_id = employee['EmployeeID'] if employee else 99999  # Fallback to 99999 if not found
+                employee_id = employee['EmployeeID']
                 
                 # Attempt to insert the order.
                 cursor = db.execute("""
