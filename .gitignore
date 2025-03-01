@@ -12,6 +12,7 @@ venv/
 # SQLite 数据库
 *.sqlite
 *.db
+!northwind.db
 
 # IDE 相关（避免提交个人 IDE 配置）
 .vscode/
