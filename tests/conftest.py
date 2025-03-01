@@ -18,7 +18,7 @@ with open(os.path.join(os.path.dirname(__file__), "data.sql"), "r", encoding="ut
 
 
 @pytest.fixture
-def flask_app() -> Generator[Flask, None, None]:
+def app() -> Generator[Flask, None, None]:
     """Create a Flask test app with a temporary database."""
     db_fd, db_path = tempfile.mkstemp()  # 创建临时数据库文件
 
@@ -48,20 +48,21 @@ def flask_app() -> Generator[Flask, None, None]:
 
 
 @pytest.fixture
-def client(flask_app: Flask) -> Any:
+def client(app: Flask) -> Any:
     """Create a Flask test client."""
-    return flask_app.test_client()
+    return app.test_client()
 
 
 @pytest.fixture
-def runner(flask_app: Flask) -> Any:
+def runner(app: Flask) -> Any:
     """Create a Flask CLI runner."""
-    return flask_app.test_cli_runner()
+    return app.test_cli_runner()
 
 
 @pytest.fixture
 def auth(client: Flask) -> Callable[[str, str], Any]:
     """A fixture to handle user authentication for tests."""
+
     def login(username: str, password: str) -> Any:
         """Login helper function for test authentication."""
         return client.post(
