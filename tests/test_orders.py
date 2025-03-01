@@ -1,8 +1,11 @@
-import pytest
-from flaskr.db import get_db
+"""Tests for orders functionality."""
+
+from typing import Callable
+
 from flask import Flask
 from flask.testing import FlaskClient
-from typing import Callable, Any
+
+from flaskr.db import get_db
 
 
 def test_view_orders_requires_login(client: FlaskClient) -> None:
@@ -92,7 +95,7 @@ def test_multiple_orders_display(client: FlaskClient, app: Flask) -> None:
             ) VALUES 
             (?, 999999, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, ?, ?, ?, ?),
             (?, 999999, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 2, ?, ?, ?, ?)
-        """,
+            """,
             (
                 "NEWUS",
                 "Test User 1",

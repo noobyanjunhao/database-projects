@@ -1,3 +1,4 @@
+# pylint: disable=redefined-outer-name
 """Test configuration for setting up the Flask app, database, and authentication fixtures."""
 
 import os
@@ -17,7 +18,7 @@ with open(os.path.join(os.path.dirname(__file__), "data.sql"), "r", encoding="ut
 
 
 @pytest.fixture
-def app() -> Generator[Flask, None, None]:
+def flask_app() -> Generator[Flask, None, None]:
     """Create a Flask test app with a temporary database."""
     db_fd, db_path = tempfile.mkstemp()  # 创建临时数据库文件
 
@@ -47,25 +48,45 @@ def app() -> Generator[Flask, None, None]:
 
 
 @pytest.fixture
-def client(app: Flask) -> Any:
+def client(flask_app: Flask) -> Any:
     """Create a Flask test client."""
-    return app.test_client()
+    return flask_app.test_client()
 
 
 @pytest.fixture
-def runner(app: Flask) -> Any:
+def runner(flask_app: Flask) -> Any:
     """Create a Flask CLI runner."""
-    return app.test_cli_runner()
+    return flask_app.test_cli_runner()
 
 
 @pytest.fixture
 def auth(client: Flask) -> Callable[[str, str], Any]:
     """A fixture to handle user authentication for tests."""
-
     def login(username: str, password: str) -> Any:
         """Login helper function for test authentication."""
         return client.post(
             "/user/login", data={"username": username, "password": password}
         )
-
     return login
+
+
+@pytest.fixture
+def auth_actions(client: Any) -> Any:
+    """
+    Fixture that returns an instance of AuthActions for performing authentication actions.
+    """
+    class AuthActions:
+        """Helper class for performing authentication actions in tests."""
+        def login(self, username: str, password: str) -> Any:
+            """
+            Log in with the provided username and password.
+            """
+            return client.post("/user/login", data={"username": username, "password": password})
+
+        def logout(self) -> Any:
+            """
+            Log out the current user.
+            """
+            return client.get("/user/logout")
+
+    return AuthActions()

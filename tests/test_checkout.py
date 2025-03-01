@@ -6,33 +6,10 @@ invalid sessions, database errors, and order storage.
 
 from typing import Any
 
-import pytest
 from flaskr.db import get_db
 
 
-@pytest.fixture
-def auth_actions(client: Any) -> Any:
-    """
-    Fixture that returns an instance of AuthActions for performing authentication actions.
-    """
-    class AuthActions:
-        """Helper class for performing authentication actions in tests."""
-        def login(self, username: str, password: str) -> Any:
-            """
-            Log in with the provided username and password.
-            """
-            return client.post("/user/login", data={"username": username, "password": password})
-
-        def logout(self) -> Any:
-            """
-            Log out the current user.
-            """
-            return client.get("/user/logout")
-
-    return AuthActions()
-
-
-def test_checkout_requires_login(client: Any, auth_actions: Any, app: Any) -> None:
+def test_checkout_requires_login(client: Any, auth_actions: Any) -> None:
     """Ensure users must be logged in to access the checkout page."""
     response = client.get("/checkout/")
     assert response.status_code == 302
@@ -184,7 +161,7 @@ def test_checkout_with_different_shipping_options(client: Any, auth_actions: Any
         assert order["ShipVia"] == 2
 
 
-def test_multiple_users_checkout_separately(client: Any, auth_actions: Any, app: Any) -> None:
+def test_multiple_users_checkout_separately(client: Any, auth_actions: Any) -> None:
     """Ensure multiple users can checkout independently without conflicts."""
     client.post("/user/register", data={"username": "USER1", "password": "pass1"})
     auth_actions.login("USER1", "pass1")
@@ -213,7 +190,7 @@ def test_multiple_users_checkout_separately(client: Any, auth_actions: Any, app:
     assert response2.status_code == 302
 
 
-def test_checkout_no_place_order(client: Any, auth_actions: Any, app: Any) -> None:
+def test_checkout_no_place_order(client: Any, auth_actions: Any) -> None:
     """
     Test the code path where the user does not provide 'place_order',
     which should trigger the fallback returning a redirect to the cart page.
@@ -302,7 +279,7 @@ def test_checkout_post_user_not_in_db(client: Any, auth_actions: Any, app: Any) 
         db = get_db()
         db.execute("DELETE FROM Authentication WHERE UserID = ?", ("MISSINGUSER",))
         db.commit()
-    with client.session_transaction() as sess:
+    with client.session_transaction() as _:
         pass
     response = client.post("/checkout/", data={
         "ship_name": "Missing DB",

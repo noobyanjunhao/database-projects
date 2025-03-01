@@ -46,3 +46,16 @@ Testing Coverage:
 Feedback
 --------
 We welcome feedback and suggestions for further improvements. Thank you for reviewing our project!
+
+
+
+In our conftest.py file, we must use the following comment:
+# pylint: disable=redefined-outer-name
+This is necessary because of how pytest’s fixture injection works. Pytest requires that fixtures be passed into test functions by matching parameter names, which leads to the same name appearing in multiple scopes. Although pylint flags this as "redefined-outer-name," it’s an expected behavior in pytest. Renaming the fixtures isn’t a viable solution, as it would either introduce new conflicts or break the dependency injection mechanism. Therefore, adding this comment is the best way to handle the warning without affecting our tests.
+
+
+
+
+
+
+
