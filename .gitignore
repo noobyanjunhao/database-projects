@@ -18,3 +18,8 @@ venv/
 .vscode/
 .idea/
 
+
+# 忽略构建和打包后的产物
+build/
+dist/
+*.egg-info/
