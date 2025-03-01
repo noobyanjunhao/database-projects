@@ -5,6 +5,8 @@ This module manages the checkout flow, including verifying user session,
 checking cart contents, placing orders, and clearing cart entries.
 """
 
+# pylint: disable=too-many-locals, too-many-return-statements, broad-exception-caught
+
 from typing import Union, Any
 
 from flask import (
