@@ -6,16 +6,12 @@ import pytest
 from flask import Flask
 
 from flaskr.db import get_db, init_app, initialize_northwind, close_db
-from flaskr import db as db_module
 
 from tests.test_helpers import verify_database_content
 
 
 # pylint: disable=unused-argument
-def patched_close_db(e=None):
-    """Wrapper for close_db to accept an extra argument without using it."""
-    # Call the original close_db without passing any argument.
-    close_db()
+
 
 
 def test_get_close_db(app: Flask) -> None:
@@ -53,7 +49,6 @@ def test_database_content(app: Flask) -> None:
 def test_init_app(app: Flask) -> None:
     """Test that init_app registers the close_db function correctly via teardown."""
     # Patch the teardown function so it accepts the extra argument.
-    db_module.close_db = patched_close_db
     init_app(app)
     with app.app_context():
         conn = get_db()
