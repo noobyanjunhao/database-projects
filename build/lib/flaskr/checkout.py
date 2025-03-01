@@ -1,10 +1,11 @@
-# pylint: disable=too-many-locals, too-many-return-statements, broad-exception-caught
 """
 Checkout module for handling the cart checkout process.
 
 This module manages the checkout flow, including verifying user session,
 checking cart contents, placing orders, and clearing cart entries.
 """
+
+# pylint: disable=too-many-locals, too-many-return-statements, broad-exception-caught
 
 from typing import Union, Any
 
@@ -59,16 +60,11 @@ def checkout() -> Union[str, FlaskResponse, WerkzeugResponse]:
         return redirect(url_for("cart.view_cart"))
 
     if request.method == "POST":
-        if "user_id" not in session or "session_id" not in session:
-            return redirect(url_for("user.login"))
 
         user_row = db.execute(
             "SELECT UserID FROM Authentication WHERE UserID = ? AND SessionID = ?",
             (session["user_id"], session["session_id"]),
         ).fetchone()
-
-        if not user_row:
-            return redirect(url_for("user.login"))
 
         user_id: str = user_row["UserID"]
 
@@ -125,23 +121,17 @@ def checkout() -> Union[str, FlaskResponse, WerkzeugResponse]:
                 flash(f"An error occurred during order placement: {e}", "danger")
                 return redirect(url_for("cart.view_cart"))
 
-            try:
 
-                db.execute("DELETE FROM Shopping_cart WHERE ShopperID = ?", (cart_id,))
-                db.commit()
+            db.execute("DELETE FROM Shopping_cart WHERE ShopperID = ?", (cart_id,))
+            db.commit()
 
-                db.execute(
-                    "DELETE FROM Shopping_cart WHERE AddedAt < datetime('now', '-1 month')"
-                )
-                db.commit()
+            db.execute(
+                "DELETE FROM Shopping_cart WHERE AddedAt < datetime('now', '-1 month')"
+            )
+            db.commit()
 
-                flash("Order placed successfully, thank you!")
-                return redirect(url_for("orders.view_orders"))
-            except Exception as e:
-                db.rollback()
-                flash(f"An error occurred while clearing your cart: {e}", "danger")
-                return redirect(url_for("cart.view_cart"))
-        else:
-            return redirect(url_for("cart.view_cart"))
+            flash("Order placed successfully, thank you!")
+            return redirect(url_for("orders.view_orders"))
+        return redirect(url_for("cart.view_cart"))
 
     return render_template("cart/checkout.html")
