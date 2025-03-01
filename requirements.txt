@@ -10,7 +10,6 @@ Flask==3.1.0
 Flask-Login==0.6.3
 Flask-SQLAlchemy==3.1.1
 Flask-WTF==1.2.2
-flaskr @ file:///Users/davewang/Desktop/flask-ecommerce/dist/flaskr-1.0.0-py3-none-any.whl
 gunicorn==23.0.0
 iniconfig==2.0.0
 isort==6.0.0
