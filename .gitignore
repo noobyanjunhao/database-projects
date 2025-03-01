@@ -3,6 +3,8 @@ __pycache__/
 *.pyc
 *.pyo
 *.log
+.mypy_cache/
+.pytest_cache/
 
 # Virtual Environment
 .venv/
@@ -20,6 +22,6 @@ venv/
 
 
 # 忽略构建和打包后的产物
-build/
-dist/
-*.egg-info/
+build
+dist
+flaskr.egg-info
