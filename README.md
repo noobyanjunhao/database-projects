@@ -320,21 +320,21 @@ The `test_user.py` module verifies the core functionality of user authentication
 Additional Information
 ----------------------------------
 
---------- Pylint Test Aspects --------- 
-In our `conftest.py file`, we must use the following comment:
-`pylint: disable=redefined-outer-name`
-This is necessary because of how pytest’s fixture injection works. Pytest requires that fixtures be passed into test functions by matching parameter names, which leads to the same name appearing in multiple scopes. Although pylint flags this as `redefined-outer-name`, it’s an expected behavior in pytest. Renaming the fixtures isn’t a viable solution, as it would either introduce new conflicts or break the dependency injection mechanism. Therefore, adding this comment is the best way to handle the warning without affecting our tests.
+**Pylint Test Aspects**
+   - In our `conftest.py file`, we must use the following comment:
+   `pylint: disable=redefined-outer-name`
+   - This is necessary because of how pytest’s fixture injection works. Pytest requires that fixtures be passed into test functions by matching parameter names, which leads to the same name appearing in multiple scopes. Although pylint flags this as `redefined-outer-name`, it’s an expected behavior in pytest. Renaming the fixtures isn’t a viable solution, as it would either introduce new conflicts or break the dependency injection mechanism. Therefore, adding this comment is the best way to handle the warning without affecting our tests.
 
 
---------- Enhanced Product Page Design --------- 
-In our product page, we have adopted a more intuitive design, making significant improvements to the logical structure of the page layout. Instead of following the traditional approach where the main product page consists only of product links—requiring users to click each link to navigate to a separate detailed product information page—we have streamlined the experience by integrating all essential product details into a single page.  
+**Enhanced Product Page Design**
+   - In our product page, we have adopted a more intuitive design, making significant improvements to the logical structure of the page layout. Instead of following the traditional approach where the main product page consists only of product links—requiring users to click each link to navigate to a separate detailed product information page—we have streamlined the experience by integrating all essential product details into a single page.  
 
-This enhancement eliminates unnecessary steps for users. Rather than navigating through multiple pages, users can now browse product details, filter by category, search for specific products, and add items to their cart all within the same interface. The product page is no longer just a collection of links but a comprehensive display of product information, providing a more seamless, efficient, and intuitive shopping experience.
+   - This enhancement eliminates unnecessary steps for users. Rather than navigating through multiple pages, users can now browse product details, filter by category, search for specific products, and add items to their cart all within the same interface. The product page is no longer just a collection of links but a comprehensive display of product information, providing a more seamless, efficient, and intuitive shopping experience.
 
 
 
---------- Databse Set Up Improvement --------- 
-In aour assignment, it only requires to programatically setting up the database of employees realtion by adding a dommy employees "WEB" in it. However, we improve this, all the additional tables and this new line will be inserted and created programatically and automatically. User do not have to manulaly run the "flask --app flaskr init-db" to initialize our database. It can be more intutive and fluent in using process.
+**Databse Set Up Improvement**
+   - In aour assignment, it only requires to programatically setting up the database of employees realtion by adding a dommy employees "WEB" in it. However, we improve this, all the additional tables and this new line will be inserted and created programatically and automatically. User do not have to manulaly run the "flask --app flaskr init-db" to initialize our database. It can be more intutive and fluent in using process.
 
 
 
