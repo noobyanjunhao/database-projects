@@ -23,7 +23,7 @@ Team Members
 Testing and Development Approach
 ----------------------------------
 
-1. conftest.py
+--------- conftest.py ---------
 ### **Description of Tests**  
 The `conftest.py` module provides the foundational test configuration for the Flask application. It sets up a controlled testing environment by initializing a temporary database, configuring the Flask test application, and providing reusable fixtures for authentication and request handling. These fixtures ensure that tests are isolated, consistent, and independent of the production database, enabling reliable execution of unit and integration tests.
 
@@ -53,7 +53,7 @@ The `conftest.py` module provides the foundational test configuration for the Fl
 
 
 
-2. test_app.py
+--------- test_app.py ---------
 ### **Description of Tests**  
 The `test_app.py` module ensures the correct functionality and accessibility of key pages and features within the Flask application. It verifies that pages load properly, user authentication works as expected, and the database is correctly managed. The tests cover rendering of essential pages, handling of shopping cart and checkout logic, authentication behavior, and database integrity. By simulating real user interactions through the Flask test client, these tests help maintain application stability and reliability.
 
@@ -85,7 +85,7 @@ The `test_app.py` module ensures the correct functionality and accessibility of 
 
 
 
-3. test_cart.py
+--------- test_cart.py --------- 
 ### **Description of Tests**  
 The `test_cart.py` module verifies the core functionality of the shopping cart feature in the Flask application. It ensures that users can add and remove items, view the cart contents, and handle session-based shopping behavior correctly. The tests also validate cart persistence, database integrity, and proper error handling when interacting with the cart. Additionally, the cleanup mechanism for old cart entries is tested to ensure that stale data does not persist beyond the expiration period.
 
@@ -119,7 +119,7 @@ The `test_cart.py` module verifies the core functionality of the shopping cart f
 
 
 
-4. test_checkout.py
+--------- test_checkout.py --------- 
 ### **Description of Tests**  
 The `test_checkout.py` module verifies the checkout functionality of the Flask application. It ensures that users can successfully complete purchases while handling various scenarios, such as authentication requirements, empty carts, invalid sessions, and database integrity issues. The tests simulate real user behavior by testing login flows, cart interactions, and order storage mechanisms, ensuring that the checkout process is secure and error-free.
 
@@ -153,7 +153,7 @@ The `test_checkout.py` module verifies the checkout functionality of the Flask a
 
 
 
-5. test_db.py
+--------- test_db.py --------- 
 ### **Description of Tests**  
 The `test_db.py` module verifies the correctness and reliability of the database functionality within the Flask application. It ensures that database connections are properly managed, the database schema is correctly initialized, and essential data is inserted as expected. The tests validate both the integrity of the database operations and the robustness of error handling when accessing or closing database connections.
 
@@ -176,7 +176,7 @@ The `test_db.py` module verifies the correctness and reliability of the database
 
 
 
-6. test_factory.py
+--------- test_factory.py --------- 
 ### **Description of Tests**  
 The `test_factory.py` module verifies the correct configuration of the Flask application factory and the behavior of the `/hello` endpoint. It ensures that the application initializes with the appropriate settings and that a simple API route functions as expected. These tests validate the core setup of the application, confirming its ability to run in both default and testing modes.
 
@@ -193,7 +193,7 @@ The `test_factory.py` module verifies the correct configuration of the Flask app
 
 
 
-7. test_helpers.py
+--------- test_helpers.py --------- 
 ### **Description of Tests**  
 The `test_helpers.py` module contains utility functions to verify the integrity of the test database. The primary function, `verify_database_content()`, ensures that essential records exist in the `Customers` and `Products` tables. This function is used across multiple test modules to validate that the test database is correctly initialized with the expected data before running test cases.
 
@@ -212,7 +212,7 @@ The `test_helpers.py` module contains utility functions to verify the integrity 
 
 
 
-8. test_landing.py
+--------- test_landing.py --------- 
 ### **Description of Tests**  
 The `test_landing.py` module verifies the correct functionality and error handling of the landing page. It ensures that the landing page renders successfully and contains the expected content. Additionally, it tests how the application behaves when the template is missing, validating the robustness of error handling.
 
@@ -226,7 +226,7 @@ The `test_landing.py` module verifies the correct functionality and error handli
    - Ensures that the application raises a `TemplateNotFound` exception when the template is unavailable.  
 
 
-9. test_orders.py
+--------- test_orders.py --------- 
 ### **Description of Tests**  
 The `test_orders.py` module verifies the correct functionality of the order management system in the Flask application. It ensures that users can place orders, view their order history, and that the cart is properly cleared after a successful checkout. These tests also validate authentication enforcement, database consistency, and order display behavior.
 
@@ -259,7 +259,7 @@ The `test_orders.py` module verifies the correct functionality of the order mana
 
 
 
-10. test_products.py
+--------- test_products.py --------- 
 ### **Description of Tests**  
 The `test_products.py` module verifies the functionality of the product listing and filtering system in the Flask application. It ensures that users can view available products, search for specific items, filter by category, and access product details. These tests help confirm that product data is displayed correctly and that search and filtering mechanisms function as expected.
 
@@ -283,7 +283,7 @@ The `test_products.py` module verifies the functionality of the product listing 
 
 
 
-11. test_user.py
+--------- test_user.py --------- 
 ### **Description of Tests**  
 The `test_user.py` module verifies the core functionality of user authentication and session management in the Flask application. It ensures that users can register, log in, and log out correctly, while also handling edge cases such as incorrect credentials, incomplete registration, and session inconsistencies. These tests confirm that authentication mechanisms are secure and robust.
 
@@ -320,20 +320,20 @@ The `test_user.py` module verifies the core functionality of user authentication
 Additional Information
 ----------------------------------
 
-1. Pylint Test Aspects
-In our conftest.py file, we must use the following comment:
-# pylint: disable=redefined-outer-name
-This is necessary because of how pytest’s fixture injection works. Pytest requires that fixtures be passed into test functions by matching parameter names, which leads to the same name appearing in multiple scopes. Although pylint flags this as "redefined-outer-name," it’s an expected behavior in pytest. Renaming the fixtures isn’t a viable solution, as it would either introduce new conflicts or break the dependency injection mechanism. Therefore, adding this comment is the best way to handle the warning without affecting our tests.
+--------- Pylint Test Aspects --------- 
+In our `conftest.py file`, we must use the following comment:
+`pylint: disable=redefined-outer-name`
+This is necessary because of how pytest’s fixture injection works. Pytest requires that fixtures be passed into test functions by matching parameter names, which leads to the same name appearing in multiple scopes. Although pylint flags this as `redefined-outer-name`, it’s an expected behavior in pytest. Renaming the fixtures isn’t a viable solution, as it would either introduce new conflicts or break the dependency injection mechanism. Therefore, adding this comment is the best way to handle the warning without affecting our tests.
 
 
-2. Enhanced Product Page Design
+--------- Enhanced Product Page Design --------- 
 In our product page, we have adopted a more intuitive design, making significant improvements to the logical structure of the page layout. Instead of following the traditional approach where the main product page consists only of product links—requiring users to click each link to navigate to a separate detailed product information page—we have streamlined the experience by integrating all essential product details into a single page.  
 
 This enhancement eliminates unnecessary steps for users. Rather than navigating through multiple pages, users can now browse product details, filter by category, search for specific products, and add items to their cart all within the same interface. The product page is no longer just a collection of links but a comprehensive display of product information, providing a more seamless, efficient, and intuitive shopping experience.
 
 
 
-3. Databse Set Up Improvement
+--------- Databse Set Up Improvement --------- 
 In aour assignment, it only requires to programatically setting up the database of employees realtion by adding a dommy employees "WEB" in it. However, we improve this, all the additional tables and this new line will be inserted and created programatically and automatically. User do not have to manulaly run the "flask --app flaskr init-db" to initialize our database. It can be more intutive and fluent in using process.
 
 
