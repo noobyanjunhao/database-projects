@@ -1,0 +1,31 @@
+Apartment(_id_, unit_number, unit_size, ownership_type, is_special)
+- unit_number is not null
+- unit_size is not null
+- ownership_type is not null, check (ownership_type in ('sold', 'rent_controlled', 'rent_stabilized', 'market'))
+- is_special is not null, check (is_special in (true, false))
+
+Tenant(_id_, first_name, last_name, full_name, email)
+- first_name is not null
+- last_name is not null
+- full_name is not null
+- email is not not null
+- email is unique
+
+Lease(_id_, tenant_id, apartment_id, start_date, end_date, monthly_rent)
+- tenant_id is not null, foreign key references Tenant(id)
+- apartment_id is not null, foreign key references Apartment(id)
+- start_date is not null
+- monthly_rent is not null
+
+Bill(_id_, lease_id, billing_month, rent_amount, other_charges, balance_used, total_amount, sent_at)
+- lease_id is not null, foreign key references Lease(id)
+- billing_month is not null
+- rent_amount is not null
+- balance_used is not null
+- total_amount is not null
+
+Payment(_id_, bill_id, amount, payment_date, check_number, remitter_name)
+- bill_id is not null, foreign key references Bill(id)
+- amount is not null
+- payment_date is not null
+- remitter_name is not null
