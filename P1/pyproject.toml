@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "flaskr"
+version = "1.0.0"
+dependencies = [
+    "flask",
+    "flask-sqlalchemy",
+    "gunicorn",
+    "waitress"
+]
+
+[tool.setuptools]
+packages = ["flaskr"]
+
+[tool.setuptools.package-data]
+flaskr = ["templates/*.html", "static/*"]
+

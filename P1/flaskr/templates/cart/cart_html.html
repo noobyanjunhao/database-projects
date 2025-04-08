@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping Cart{% endblock %}
+
+{% block content %}
+<div class="cart-container">
+    <h1 class="cart-title">Shopping Cart</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    {% if items %}
+    <div class="cart-items">
+        {% for item in items %}
+        <div class="cart-item">
+            <div class="cart-item-details">
+                <h3 class="cart-product-name">{{ item.name }}</h3>
+                <p class="cart-product-price">${{ "%.2f"|format(item.price) }}</p>
+                <p class="cart-product-quantity">Quantity: {{ item.quantity }}</p>
+                <p class="cart-added-time">Added: {{ item.timestamp }}</p>
+                <p class="cart-total-price">Total: ${{ "%.2f"|format(item.total_price) }}</p>
+                <form action="{{ url_for('cart.remove_from_cart') }}" method="POST">
+                    <input type="hidden" name="product_id" value="{{ item.product_id }}">
+                    <button type="submit" class="remove-btn">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="cart-summary">
+        <h2>Cart Total: ${{ "%.2f"|format(total) }}</h2>
+        <a href="{{ url_for('checkout.checkout') }}" class="checkout-btn">Proceed to Checkout</a>
+    </div>
+    {% else %}
+    <p class="empty-cart">Your cart is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}
+

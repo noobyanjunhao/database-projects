@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <h1>Checkout</h1>
+    <p class="checkout-description">Please confirm your order details before proceeding.</p>
+    <a href="{{ url_for('cart.view_cart') }}" class="cancel-btn">Cancel and Return to Cart</a>
+    <form class="checkout-form" action="" method="POST">
+        <div>
+            <label for="ship_name">Full Name:</label>
+            <input type="text" id="ship_name" name="ship_name" placeholder="Enter your full name" required>
+        </div>
+
+        <div>
+            <label for="ship_address">Street Address:</label>
+            <input type="text" id="ship_address" name="ship_address" placeholder="1234 Main St" required>
+        </div>
+
+        <div>
+            <label for="ship_city">City:</label>
+            <input type="text" id="ship_city" name="ship_city" placeholder="Enter city name" required>
+        </div>
+
+        <div>
+            <label for="ship_region">Region/State:</label>
+            <input type="text" id="ship_region" name="ship_region" placeholder="Enter state or region">
+        </div>
+
+        <div>
+            <label for="ship_postal_code">Postal Code:</label>
+            <input type="text" id="ship_postal_code" name="ship_postal_code" placeholder="Enter postal code">
+        </div>
+
+        <div>
+            <label for="ship_country">Country:</label>
+            <input type="text" id="ship_country" name="ship_country" placeholder="Enter country name" required>
+        </div>
+
+        <div>
+            <label for="ship_via">Shipping Method:</label>
+            <select id="ship_via" name="ship_via">
+                <option value="1">Standard - Free</option>
+                <option value="2">Express - $10</option>
+                <option value="3">Overnight - $20</option>
+            </select>
+        </div>
+
+        <button type="submit" class="place-order-btn" name="place_order" value="true">Place Order</button>
+    </form>
+</div>
+{% endblock %}
+

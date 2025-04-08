@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Products List{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="page-header">
+        <h2>Our Products</h2>
+    </div>
+
+    <div class="search-filter-container">
+        <form method="get" action="{{ url_for('products.list_products') }}">
+            <div class="search-container">
+                <input type="text" name="search" placeholder="Search products..." value="{{ request.args.get('search', '') }}">
+                <button type="submit">Search</button>
+            </div>
+            
+            <div class="category-filter">
+                <button type="button" class="{% if not request.args.get('category') %}active{% endif %}" 
+                        onclick="window.location.href='{{ url_for('products.list_products') }}'">
+                    All Categories
+                </button>
+                {% for category in range(1, 9) %}
+                    <button type="button" 
+                            class="{% if request.args.get('category')|int == category %}active{% endif %}"
+                            onclick="window.location.href='{{ url_for('products.list_products', category=category) }}'">
+                        Category {{ category }}
+                    </button>
+                {% endfor %}
+            </div>
+        </form>
+    </div>
+
+
+    {% if products %}
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-info">
+                <div class="product-name">{{ product["ProductName"] }}</div>
+                <div class="product-price">${{ product["UnitPrice"] }}</div>
+                <div class="product-category">Category 📖 : {{ product["CategoryID"] }}</div>
+		<div class="product-quantity-per-unit">Quantity(Unit) 🔢: {{ product["QuantityPerUnit"] }}</div>
+		<div class="product-unit-in-stock">Stock 📦 : {{ product["UnitsInStock"] }}</div>
+		<div class="product-reorder-level">Reorder Level 🌟 : {{ product["ReorderLevel"] }}</div>
+                
+                <form method="POST" action="{{ url_for('cart.add_to_cart') }}" onsubmit="return submitAddToCart(this);" class="add-to-cart-form">
+                    <input type="hidden" name="product_id" value="{{ product['ProductID'] }}">
+                    <input type="number" name="quantity" value="1" min="1" class="quantity-input">
+                    <button type="" class="add-to-cart-btn">Add to Cart</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-products">
+        <p>No matching products found.</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function submitAddToCart(form) {
+    event.preventDefault();
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then(resp => resp.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert(data.message || "Added to cart successfully");
+        } else {
+            alert("Failed: " + data.message);
+        }
+    })
+    .catch(err => {
+        console.error("Error:", err);
+        alert("Failed to add to cart");
+    });
+    return false;
+}
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Your Orders{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h1 class="orders-title">Your Orders</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">Order #{{ order["OrderID"] }}</span>
+                <span class="order-date">{{ order["OrderDate"] }}</span>
+            </div>
+            
+            <div class="order-body">
+                <p><strong>Shipping Name:</strong> {{ order["ShipName"] }}</p>
+                <p><strong>Address:</strong> {{ order["ShipAddress"] }}, {{ order["ShipCity"] }}, {{ order["ShipCountry"] }}</p>
+                <p><strong>Shipping Method:</strong>
+                    {% if order["ShipVia"] == 1 %}
+                        Standard
+                    {% elif order["ShipVia"] == 2 %}
+                        Express
+                    {% elif order["ShipVia"] == 3 %}
+                        Overnight
+                    {% else %}
+                        Unknown
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-orders">You have no orders yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
