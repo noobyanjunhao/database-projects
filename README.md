@@ -4,20 +4,19 @@ Welcome to the **Database-Team** repository! This project is part of our collabo
 
 ## 👥 Group Members
 
-- **Bo Zhang** – Backend Architecture & Query Optimization  
-- **Boyu Shen** – Database Modeling & Schema Design  
-- **Dave Wang** – API Development & Integration  
-- **Junhao Yan** – Frontend-Backend Communication & Documentation  
-- **Ruohang Feng** – Data Analysis & Testing
+- **Bo Zhang** 
+- **Boyu Shen** 
+- **Dave Wang** 
+- **Junhao Yan** 
+- **Ruohang Feng** 
 
 ## 📌 About the Project
 
 This repository contains multiple database-related projects, including:
 
-- **Project 1:** [Project Name or Brief Description]  
-- **Project 2:** [Project Name or Brief Description]
+- **Project 1:** [flask-ecommerce]  
+- **Project 2:** [rent system]
 
 Our goal is to build reliable, efficient, and scalable data-driven applications by leveraging modern database techniques.
 
-## 📁 Repository Structure
 
