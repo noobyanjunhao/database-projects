@@ -1,7 +1,5 @@
 # 📊 Database-Team Project
 
-Welcome to the **Database-Team** repository! This project is part of our collaborative coursework in database systems, where we explore data modeling, query design, and backend integration.
-
 ## 👥 Group Members
 
 - **Bo Zhang** 
