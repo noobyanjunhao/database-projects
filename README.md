@@ -17,6 +17,5 @@ This repository contains multiple database-related projects, including:
 - **Project 1:** [flask-ecommerce]  
 - **Project 2:** [rent system]
 
-Our goal is to build reliable, efficient, and scalable data-driven applications by leveraging modern database techniques.
 
 
