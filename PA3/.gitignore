@@ -1,0 +1,50 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# SQLite database file
+flaskr.sqlite
+
+# Instance folder (Flask runtime)
+instance/
+*.db
+*.sqlite3
+
+# VSCode settings
+.vscode/
+
+# Pytest / coverage
+htmlcov/
+.tox/
+.coverage
+coverage.xml
+*.cover
+.pytest_cache/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Python cache
+*.pyo
+
+# Editor backups
+*~
+
+# Optional: ignore all *.drawio.bkp files
+*.drawio.bkp
