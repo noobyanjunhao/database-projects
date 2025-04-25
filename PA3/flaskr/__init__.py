@@ -3,6 +3,9 @@ from flask import Flask, render_template, request
 from .db import get_db
 from datetime import datetime
 import json
+import io
+import pandas as pd
+from flask import send_file
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -355,6 +358,50 @@ def create_app():
         return "", 200
 
 
+
+    @app.route('/units/export')
+    def export_units():
+        db = get_db()
+
+        units = db.execute("""
+            SELECT A.unit_number, A.unit_size, A.ownership_type, A.is_special, 
+                T.full_name AS owner_name, 
+                L.monthly_rent, L.end_date
+            FROM Apartment A
+            LEFT JOIN Lease L ON L.apartment_id = A.id
+            LEFT JOIN Tenant T ON T.id = L.tenant_id
+            WHERE A.ownership_type != 'sold'
+            ORDER BY A.unit_number
+        """).fetchall()
+
+        # 把数据转成 pandas DataFrame
+        data = []
+        for u in units:
+            data.append({
+                "Unit Number": u["unit_number"],
+                "Unit Size": u["unit_size"],
+                "Ownership Type": u["ownership_type"],
+                "Is Special": "Yes" if u["is_special"] else "No",
+                "Owner Name": u["owner_name"] or "N/A",
+                "Monthly Rent": u["monthly_rent"] if u["ownership_type"] != "sold" else None,
+                "Rent End Date": u["end_date"] if u["ownership_type"] != "sold" else None,
+            })
+
+        df = pd.DataFrame(data)
+
+        # 写到内存流
+        output = io.BytesIO()
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name="Units")
+
+        output.seek(0)
+
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name="units_overview.xlsx",
+            mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
 
 

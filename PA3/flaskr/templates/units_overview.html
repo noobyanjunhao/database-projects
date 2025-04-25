@@ -15,6 +15,10 @@
 
   <main class="container">
 
+    <div class="export-button-container">
+    <a href="{{ url_for('export_units') }}" class="btn export-btn">Export to Excel</a>
+    </div>
+
     <!-- Filters -->
     <form method="get" class="controls" id="filterForm">
       <input type="text" name="search" placeholder="Search by Unit or Tenant"

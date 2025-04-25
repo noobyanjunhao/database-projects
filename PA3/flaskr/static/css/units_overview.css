@@ -68,3 +68,20 @@ body {
   padding: 4px 8px;
   border-radius: 4px;
 }
+
+.export-button-container {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.export-btn {
+  background-color: #4CAF50;
+  color: white;
+  padding: 8px 14px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.export-btn:hover {
+  background-color: #45a049;
+}
