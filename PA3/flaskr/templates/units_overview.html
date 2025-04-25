@@ -16,7 +16,7 @@
   <main class="container">
 
     <div class="export-button-container">
-    <a href="{{ url_for('export_units') }}" class="btn export-btn">Export to Excel</a>
+      <a href="{{ url_for('export_units') }}" class="btn export-btn">Export to Excel</a>
     </div>
 
     <!-- Filters -->
@@ -48,9 +48,10 @@
           <h3>{{ u.unit_number }}</h3>
           <p><strong>Size:</strong> {{ u.unit_size or 'N/A' }}</p>
           <p><strong>Type:</strong> {{ u.ownership_type }}</p>
-          <p><strong>Tenant:</strong> {{ u.full_name or 'N/A' }}</p>
+          <p><strong>Tenant:</strong> {{ u.tenant_name or 'N/A' }}</p>
 
-          {% if u.ownership_type != 'sold' %}
+          {# 只有在“非 sold 且 有 lease”时，才显示租金和结束日 #}
+          {% if u.ownership_type != 'sold' and u.has_lease %}
             <p><strong>Rent:</strong> ${{ "%.2f"|format(u.monthly_rent or 0) }}</p>
             <p><strong>End Date:</strong> {{ u.end_date or 'N/A' }}</p>
           {% endif %}
