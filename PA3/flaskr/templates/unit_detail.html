@@ -73,18 +73,58 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
             <h3>Lease Details</h3>
-            <ul>
-            <li><strong>Unit Number:</strong> {{ lease.unit_number }}</li>
-            <li><strong>Unit Size:</strong> {{ lease.unit_size or 'N/A' }}</li>
-            <li><strong>Unit Type:</strong> {{ lease.ownership_type or 'N/A' }}</li>
-            <li><strong>Tenant Name:</strong> {{ lease.full_name }}</li>
-            <li><strong>Email:</strong> {{ lease.email }}</li>
-            <li><strong>Start Date:</strong> {{ lease.start_date }}</li>
-            <li><strong>End Date:</strong> {{ lease.end_date or 'N/A' }}</li>
-            <li><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</li>
-            </ul>
+
+            <form id="leaseForm">
+            <div class="form-row"><strong>Unit Number:</strong> {{ lease.unit_number }}</div>
+
+            <div class="form-row"><strong>Unit Size:</strong> {{ lease.unit_size or 'N/A' }}</div>
+
+            <div class="form-row">
+                <label><strong>Unit Type:</strong></label>
+                <input type="text" name="ownership_type" id="ownershipTypeInput" value="{{ lease.ownership_type }}" disabled>
+            </div>
+
+            <div class="form-row">
+                <label><strong>Tenant Name:</strong></label>
+                <input type="text" name="tenant_name" id="tenantNameInput" value="{{ lease.full_name }}" disabled>
+            </div>
+
+            <div class="form-row">
+                <label><strong>Email:</strong></label>
+                <input type="email" name="email" id="tenantEmailInput" value="{{ lease.email }}" disabled>
+            </div>
+
+            <div class="form-row">
+                <label><strong>Start Date:</strong></label>
+                <input type="date" name="start_date" id="startDateInput" value="{{ lease.start_date }}" disabled>
+            </div>
+
+            <div class="form-row">
+                <label><strong>End Date:</strong></label>
+                <input type="date" name="end_date" id="endDateInput" value="{{ lease.end_date or '' }}" disabled>
+            </div>
+
+            <div class="form-row">
+                <label><strong>Is Special:</strong></label>
+                <select id="isSpecialSelect" disabled onchange="toggleRentEditability()">
+                <option value="0" {% if not lease.is_special %}selected{% endif %}>No</option>
+                <option value="1" {% if lease.is_special %}selected{% endif %}>Yes</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label><strong>Monthly Rent:</strong></label>
+                <input type="number" id="monthlyRentInput" value="{{ lease.monthly_rent }}" disabled step="0.01" min="0">
+            </div>
+
+            <div class="form-row">
+                <button type="button" id="editLeaseBtn" onclick="enableLeaseEditing()">Edit</button>
+                <button class="btn" id="saveLeaseBtn" style="display: none;" onclick="submitLeaseUpdate()">Save</button>
+            </div>
+            </form>
         </div>
     </div>
+
 
     <!-- Full Bill History Modal -->
     <div id="billHistoryModal" class="modal">
@@ -323,13 +363,31 @@
 
 
 <script>
-  function openModal() {
-    document.getElementById('leaseModal').style.display = 'block';
-  }
 
-  function closeModal() {
+
+let isEditingLease = false;
+
+function openModal() {
+  isEditingLease = false;
+  document.getElementById('leaseModal').style.display = 'block';
+  setLeaseViewMode();
+}
+
+
+function closeModal() {
+  if (isEditingLease) {
+    if (confirm("You have unsaved changes. Do you want to save before exiting?")) {
+      submitLeaseUpdate();
+    } else {
+      isEditingLease = false;
+      document.getElementById('leaseModal').style.display = 'none';
+      setLeaseViewMode(); 
+    }
+  } else {
     document.getElementById('leaseModal').style.display = 'none';
   }
+}
+
 
   function openBillModal() {
     document.getElementById('billHistoryModal').style.display = 'block';
@@ -595,6 +653,82 @@ function showToast(message) {
     }, 500);
   }, 3000);
 }
+
+
+function enableLeaseEditing() {
+  isEditingLease = true;
+  document.getElementById("ownershipTypeInput").disabled = false;
+  document.getElementById("tenantNameInput").disabled = false;
+  document.getElementById("tenantEmailInput").disabled = false;
+  document.getElementById("startDateInput").disabled = false;
+  document.getElementById("endDateInput").disabled = false;
+  document.getElementById("isSpecialSelect").disabled = false;
+
+  toggleRentEditability();
+
+  document.getElementById("editLeaseBtn").style.display = "none";
+  document.getElementById("saveLeaseBtn").style.display = "inline-block";
+}
+
+
+function toggleRentEditability() {
+  const special = document.getElementById("isSpecialSelect").value;
+  const rentInput = document.getElementById("monthlyRentInput");
+  if (special === "1") {
+    rentInput.value = 0;
+    rentInput.disabled = true;
+  } else {
+    rentInput.disabled = false;
+  }
+}
+
+
+function submitLeaseUpdate() {
+  if (!confirm("Are you sure you want to save the lease changes?")) {
+    return;
+  }
+
+  const payload = {
+    ownership_type: document.getElementById("ownershipTypeInput").value,
+    tenant_name: document.getElementById("tenantNameInput").value.trim(),
+    tenant_email: document.getElementById("tenantEmailInput").value.trim(),
+    start_date: document.getElementById("startDateInput").value,
+    end_date: document.getElementById("endDateInput").value,
+    monthly_rent: parseFloat(document.getElementById("monthlyRentInput").value),
+    is_special: document.getElementById("isSpecialSelect").value === "1" ? 1 : 0
+  };
+
+  fetch(`/unit/{{ apartment_id }}/update-lease`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(res => {
+    if (res.ok) {
+      showToast("✅ Lease updated successfully!");
+      isEditingLease = false;
+      setTimeout(() => location.reload(), 2000);
+    } else {
+      alert("❌ Failed to update lease.");
+    }
+  });
+}
+
+
+function setLeaseViewMode() {
+  document.getElementById("ownershipTypeInput").disabled = true;
+  document.getElementById("tenantNameInput").disabled = true;
+  document.getElementById("tenantEmailInput").disabled = true;
+  document.getElementById("startDateInput").disabled = true;
+  document.getElementById("endDateInput").disabled = true;
+  document.getElementById("monthlyRentInput").disabled = true;
+  document.getElementById("isSpecialSelect").disabled = true;
+
+  document.getElementById("editLeaseBtn").style.display = "inline-block";
+  document.getElementById("saveLeaseBtn").style.display = "none";
+
+  isEditingLease = false;
+}
+
 
 
 </script>

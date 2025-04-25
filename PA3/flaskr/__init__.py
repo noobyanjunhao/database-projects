@@ -81,6 +81,9 @@ def create_app():
 
         if lease_info is None:
             return f"No lease data found for unit {unit_id}", 404
+        
+        if lease_info["ownership_type"].lower() == "sold":
+            lease_info["monthly_rent"] = 0.0
 
         lease_id = lease_info["lease_id"]
 
@@ -271,6 +274,63 @@ def create_app():
         return render_template("payment_detail.html", payment=payment)
 
 
+
+
+    @app.route('/unit/<int:unit_id>/update-lease', methods=['POST'])
+    def update_lease(unit_id):
+        db = get_db()
+        data = request.get_json()
+
+        lease = db.execute("""
+            SELECT L.id AS lease_id, T.id AS tenant_id
+            FROM Apartment A
+            JOIN Lease L ON L.apartment_id = A.id
+            JOIN Tenant T ON T.id = L.tenant_id
+            WHERE A.id = ?
+            ORDER BY L.start_date DESC LIMIT 1
+        """, (unit_id,)).fetchone()
+
+        if not lease:
+            return "Lease not found", 404
+
+        try:
+            db.execute("""
+                UPDATE Tenant
+                SET full_name = ?, email = ?
+                WHERE id = ?
+            """, (
+                data["tenant_name"],
+                data["tenant_email"],
+                lease["tenant_id"]
+            ))
+
+            db.execute("""
+                UPDATE Lease
+                SET start_date = ?, end_date = ?, monthly_rent = ?
+                WHERE id = ?
+            """, (
+                data["start_date"],
+                data["end_date"],
+                data["monthly_rent"],
+                lease["lease_id"]
+            ))
+
+            db.execute("""
+                UPDATE Apartment
+                SET ownership_type = ?, is_special = ?
+                WHERE id = ?
+            """, (
+                data["ownership_type"],
+                data["is_special"],
+                unit_id
+            ))
+
+            db.commit()
+            return "", 200
+
+        except Exception as e:
+            print("Update Lease Error:", e)
+            return "Database error", 500
 
 
     return app
