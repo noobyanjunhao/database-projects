@@ -51,13 +51,9 @@
         {% for row in data %}
           <tr>
             <td>
-                {% if row['ownership_type'] == 'sold' %}
+                <a href="{{ url_for('unit_detail', unit_id=row['apartment_id']) }}">
                     {{ row['unit_number'] }}
-                {% else %}
-                    <a href="{{ url_for('unit_detail', unit_id=row['apartment_id']) }}">
-                        {{ row['unit_number'] }}
-                    </a>
-                {% endif %}
+                </a>
             </td>
 
             <td>{{ row['ownership_type'] }}</td>

@@ -61,7 +61,15 @@ def create_app():
             query += " AND A.is_special = 1"
 
         data = db.execute(query, args).fetchall()
-        return render_template('bill_payment.html', data=data)
+        filtered_data = []
+        for row in data:
+            if row['ownership_type'] == 'sold':
+                continue
+            if row['full_name'] is None:
+                continue
+            filtered_data.append(row)
+
+        return render_template('bill_payment.html', data=filtered_data)
     
     @app.route('/unit/<int:unit_id>')
     def unit_detail(unit_id):
@@ -69,7 +77,7 @@ def create_app():
         db = get_db()
 
         lease_info = db.execute("""
-            SELECT A.id AS apartment_id, A.unit_number, A.unit_size, A.ownership_type,
+            SELECT A.id AS apartment_id, A.unit_number, A.unit_size, A.ownership_type, A.is_special,
                 T.full_name, T.email,
                 L.monthly_rent, L.start_date, L.end_date, L.id AS lease_id
             FROM Apartment A
