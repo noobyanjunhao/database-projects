@@ -81,7 +81,13 @@
 
             <div class="form-row">
                 <label><strong>Unit Type:</strong></label>
-                <input type="text" name="ownership_type" id="ownershipTypeInput" value="{{ lease.ownership_type }}" disabled>
+                <select id="ownershipTypeInput" disabled>
+                    {% for type in ['rent_controlled', 'rent_stabilized', 'market'] %}
+                        <option value="{{ type }}" {% if lease.ownership_type == type %}selected{% endif %}>
+                        {{ type.replace('_', ' ').title() }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
 
             <div class="form-row">

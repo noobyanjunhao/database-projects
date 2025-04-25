@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unit Information Overview</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/units_overview.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-left">Rent Management System</div>
+    <div class="navbar-right">Property Address: 270 Holding, LLC</div>
+  </nav>
+
+  <main class="container">
+
+    <!-- Filters -->
+    <form method="get" class="controls" id="filterForm">
+      <input type="text" name="search" placeholder="Search by Unit or Tenant"
+             value="{{ request.args.get('search', '') }}">
+
+      <select name="ownership" onchange="submitFilterForm()">
+        <option value="">All Ownership Types</option>
+        {% for type in ['sold', 'rent_controlled', 'rent_stabilized', 'market'] %}
+          <option value="{{ type }}" {% if request.args.get('ownership') == type %}selected{% endif %}>
+            {{ type.replace('_', ' ').title() }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <label>
+        <input type="checkbox" name="special" value="1"
+               onchange="submitFilterForm()"
+               {% if request.args.get('special') == '1' %}checked{% endif %}>
+        Special Only
+      </label>
+    </form>
+
+    <!-- Units Display -->
+    <div class="unit-grid">
+      {% for u in data %}
+        <div class="unit-card">
+          <h3>{{ u.unit_number }}</h3>
+          <p><strong>Size:</strong> {{ u.unit_size or 'N/A' }}</p>
+          <p><strong>Type:</strong> {{ u.ownership_type }}</p>
+          <p><strong>Tenant:</strong> {{ u.full_name or 'N/A' }}</p>
+
+          {% if u.ownership_type != 'sold' %}
+            <p><strong>Rent:</strong> ${{ "%.2f"|format(u.monthly_rent or 0) }}</p>
+            <p><strong>End Date:</strong> {{ u.end_date or 'N/A' }}</p>
+          {% endif %}
+
+          {% if u.is_special %}
+            <span class="tag">🌟 Special</span>
+          {% endif %}
+        </div>
+      {% else %}
+        <p>No units found.</p>
+      {% endfor %}
+    </div>
+
+  </main>
+
+  <script>
+    function submitFilterForm() {
+      document.getElementById("filterForm").submit();
+    }
+  </script>
+
+</body>
+</html>

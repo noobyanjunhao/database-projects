@@ -274,7 +274,39 @@ def create_app():
         return render_template("payment_detail.html", payment=payment)
 
 
+    @app.route('/units')
+    def units_overview():
+        db = get_db()
 
+        search = request.args.get('search', '').lower()
+        ownership = request.args.get('ownership', '')
+        special_only = request.args.get('special') == '1'
+
+        query = """
+            SELECT A.id AS apartment_id, A.unit_number, A.unit_size, A.ownership_type, A.is_special,
+                T.full_name, L.monthly_rent, L.end_date
+            FROM Apartment A
+            LEFT JOIN Lease L ON L.apartment_id = A.id
+            LEFT JOIN Tenant T ON T.id = L.tenant_id
+            WHERE 1=1
+        """
+
+        args = []
+
+        if search:
+            query += " AND (LOWER(A.unit_number) LIKE ? OR LOWER(T.full_name) LIKE ?)"
+            args.extend([f"%{search}%", f"%{search}%"])
+
+        if ownership:
+            query += " AND A.ownership_type = ?"
+            args.append(ownership)
+
+        if special_only:
+            query += " AND A.is_special = 1"
+
+        data = db.execute(query, args).fetchall()
+        return render_template('units_overview.html', data=data)
+    
 
     @app.route('/unit/<int:unit_id>/update-lease', methods=['POST'])
     def update_lease(unit_id):
@@ -283,54 +315,40 @@ def create_app():
 
         lease = db.execute("""
             SELECT L.id AS lease_id, T.id AS tenant_id
-            FROM Apartment A
-            JOIN Lease L ON L.apartment_id = A.id
-            JOIN Tenant T ON T.id = L.tenant_id
+            FROM Lease L
+            JOIN Apartment A ON L.apartment_id = A.id
+            JOIN Tenant T ON L.tenant_id = T.id
             WHERE A.id = ?
-            ORDER BY L.start_date DESC LIMIT 1
+            ORDER BY L.start_date DESC
+            LIMIT 1
         """, (unit_id,)).fetchone()
 
         if not lease:
             return "Lease not found", 404
 
-        try:
-            db.execute("""
-                UPDATE Tenant
-                SET full_name = ?, email = ?
-                WHERE id = ?
-            """, (
-                data["tenant_name"],
-                data["tenant_email"],
-                lease["tenant_id"]
-            ))
+        db.execute("""
+            UPDATE Tenant SET full_name = ?, email = ?
+            WHERE id = ?
+        """, (data['tenant_name'], data['tenant_email'], lease['tenant_id']))
 
-            db.execute("""
-                UPDATE Lease
-                SET start_date = ?, end_date = ?, monthly_rent = ?
-                WHERE id = ?
-            """, (
-                data["start_date"],
-                data["end_date"],
-                data["monthly_rent"],
-                lease["lease_id"]
-            ))
+        db.execute("""
+            UPDATE Lease
+            SET start_date = ?, end_date = ?, monthly_rent = ?
+            WHERE id = ?
+        """, (data['start_date'], data['end_date'], data['monthly_rent'], lease['lease_id']))
 
-            db.execute("""
-                UPDATE Apartment
-                SET ownership_type = ?, is_special = ?
-                WHERE id = ?
-            """, (
-                data["ownership_type"],
-                data["is_special"],
-                unit_id
-            ))
+        db.execute("""
+            UPDATE Apartment
+            SET ownership_type = ?, is_special = ?
+            WHERE id = ?
+        """, (data['ownership_type'], data['is_special'], unit_id))
 
-            db.commit()
-            return "", 200
+        db.commit()
+        return "", 200
 
-        except Exception as e:
-            print("Update Lease Error:", e)
-            return "Database error", 500
+
+
+
 
 
     return app
