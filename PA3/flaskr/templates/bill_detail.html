@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bill Detail</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bill_detail.css') }}">
+</head>
+<body>
+
+  <div class="invoice-container">
+    <div class="header">
+      <div>
+        <h1 class="company">270 Holding, LLC</h1>
+        <p class="address">123 Rental Ave<br>New York, NY 10001</p>
+      </div>
+      <div class="meta">
+        <h2>RENTAL INVOICE</h2>
+        <p><strong>Issued:</strong> {{ bill.sent_at.strftime('%Y-%m-%d') }}</p>
+      </div>
+    </div>
+
+    <div class="section bill-to">
+      <h3>Bill To</h3>
+      <p>{{ bill.full_name }}<br>Unit {{ bill.unit_number }}</p>
+    </div>
+
+    <div class="section charges">
+      <h3>Monthly Rent</h3>
+      <div class="charge-row">
+        <span>Base Rent</span>
+        <span>${{ "%.2f"|format(bill.rent_amount) }}</span>
+      </div>
+    </div>
+
+    <div class="section charges">
+      <h3>Other Charges</h3>
+      {% if charges %}
+        {% for name, amount in charges.items() %}
+          <div class="charge-row">
+            <span>{{ name }}</span>
+            <span>${{ "%.2f"|format(amount) }}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="none">No additional charges</p>
+      {% endif %}
+    </div>
+
+    <div class="section balance">
+      <h3>Balance Used</h3>
+      <div class="charge-row">
+        <span>Applied Balance</span>
+        <span>-${{ "%.2f"|format(bill.balance_used) }}</span>
+      </div>
+    </div>
+
+    <div class="section total">
+      <h3>Total Amount Due</h3>
+      <div class="total-amount">${{ "%.2f"|format(bill.total_amount) }}</div>
+    </div>
+  </div>
+
+</body>
+</html>

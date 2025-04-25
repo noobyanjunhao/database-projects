@@ -1,0 +1,58 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    background-color: #343a40;
+    color: white;
+    padding: 14px 24px;
+    font-weight: bold;
+    position: fixed;
+    width: 98%;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .bp-container {
+    padding: 120px 40px 40px 40px;
+  }
+  
+  .controls {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  
+  .controls input[type="text"] {
+    padding: 8px;
+    font-size: 16px;
+    width: 220px;
+  }
+  
+  .controls select {
+    padding: 8px;
+    font-size: 16px;
+  }
+  
+  .bp-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+  }
+  
+  .bp-table th, .bp-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .bp-table th {
+    background-color: #f1f1f1;
+    font-weight: bold;
+  }
+  

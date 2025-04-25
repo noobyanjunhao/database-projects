@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bill & Payment Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bill_payment.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="navbar-left">Rent Management System</div>
+    <div class="navbar-right">Property Address: 270 Holding, LLC</div>
+  </nav>
+
+  <main class="bp-container">
+
+    <!-- Filters -->
+    <form method="get" class="controls" id="filterForm">
+      <input type="text" name="search" placeholder="Search by Unit or Tenant"
+             value="{{ request.args.get('search', '') }}">
+
+      <select name="ownership" onchange="submitFilterForm()">
+        <option value="">All Ownership Types</option>
+        {% for type in ['sold', 'rent_controlled', 'rent_stabilized', 'market'] %}
+          <option value="{{ type }}" {% if request.args.get('ownership') == type %}selected{% endif %}>
+            {{ type.replace('_', ' ').title() }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <label>
+        <input type="checkbox" name="special" value="1"
+               onchange="submitFilterForm()"
+               {% if request.args.get('special') == '1' %}checked{% endif %}>
+        Special Only
+      </label>
+    </form>
+
+    <!-- Data Table -->
+    <table class="bp-table">
+      <thead>
+        <tr>
+          <th>Unit Number</th>
+          <th>Ownership Type</th>
+          <th>Tenant Name</th>
+          <th>Is Special</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        {% for row in data %}
+          <tr>
+            <td>
+                <a href="{{ url_for('unit_detail', unit_id=row['apartment_id']) }}">
+                    {{ row['unit_number'] }}
+                </a>
+            </td>
+            <td>{{ row['ownership_type'] }}</td>
+            <td>{{ row['full_name'] }}</td>
+            <td>{{ 'Yes' if row['is_special'] else 'No' }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4">No results found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </main>
+
+  <!-- Auto-submit script -->
+  <script>
+    function submitFilterForm() {
+      document.getElementById("filterForm").submit();
+    }
+  </script>
+
+</body>
+</html>

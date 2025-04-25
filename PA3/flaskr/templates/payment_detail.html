@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Payment Detail</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/payment_detail.css') }}">
+</head>
+<body>
+
+  <div class="container">
+    <h1>270 Holding, LLC</h1>
+    <p><strong>Payment From:</strong> {{ payment.full_name }}</p>
+    <p><strong>Unit:</strong> {{ payment.unit_number }}</p>
+    <p><strong>Received On:</strong> {{ payment.payment_date.strftime('%Y-%m-%d') }}</p>
+    <hr>
+
+    <div class="section">
+      <h2>Payment Info</h2>
+      <ul>
+        <li><strong>Remitter Name:</strong> {{ payment.remitter_name }}</li>
+        <li><strong>Check Number:</strong> {{ payment.check_number or "N/A" }}</li>
+        <li><strong>Amount:</strong> ${{ "%.2f"|format(payment.amount) }}</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <a href="{{ url_for('unit_detail', unit_id=payment.apartment_id) }}">← Back to Unit Detail</a>
+    </div>
+  </div>
+
+</body>
+</html>

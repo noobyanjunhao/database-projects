@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Unit Details</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/unit_detail.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-left">Rent Management System</div>
+    <div class="navbar-right">Property Address: 270 Holding, LLC</div>
+  </nav>
+
+  <main class="unit-page">
+  <div id="toast" class="toast" style="display:none;">Bill successfully created and email sent!</div>
+    <h1>Unit {{ lease.unit_number }}</h1>
+        <div class="unit-layout">
+
+            <div class="info-card">
+                <p><strong>Tenant Name:</strong> {{ lease.full_name }}</p>
+                <p><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</p>
+                <p><strong>End Date:</strong> {{ lease.end_date or "N/A" }}</p>
+                <p><strong>Current Balance:</strong> ${{ "%.2f"|format(balance) }}</p>
+                <a class="btn" href="#" onclick="openModal()">See Full Lease</a>
+            </div>
+
+            <div class="history-panel">
+                <div class="panel-card">
+                    <h2>Bill</h2>
+                    <button class="btn" onclick="openCreateBillModal()">Create Bill</button>
+                    <div class="section">
+                        <h4>Past Bills</h4>
+                        <ul>
+                        {% for b in bills %}
+                            <li>
+                            <a href="{{ url_for('bill_detail', bill_id=b['id']) }}">
+                                Issued on {{ b['sent_at'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(b['total_amount']) }}
+                            </a>
+                            </li>
+                        {% else %}
+                            <li>No bills found.</li>
+                        {% endfor %}
+                        </ul>
+                        <a class="btn-small" href="#" onclick="openBillModal()">See Full History</a>
+                    </div>
+                </div>
+
+                <div class="panel-card">
+                    <h2>Payment</h2>
+                    <button class="btn" onclick="openCreatePaymentModal()">Create Payment</button>
+                    <div class="section">
+                        <h4>Past Payments</h4>
+                        <ul>
+                        {% for p in payments %}
+                            <li>
+                                <a href="{{ url_for('payment_detail', payment_id=p['id']) }}">
+                                    Received on {{ p['payment_date'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(p['amount']) }}
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>No payments found.</li>
+                        {% endfor %}
+                        </ul>
+                        <a class="btn-small" href="#" onclick="openPaymentModal()">See Full History</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+  </main>
+
+    <div id="leaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3>Lease Details</h3>
+            <ul>
+            <li><strong>Unit Number:</strong> {{ lease.unit_number }}</li>
+            <li><strong>Unit Size:</strong> {{ lease.unit_size or 'N/A' }}</li>
+            <li><strong>Unit Type:</strong> {{ lease.ownership_type or 'N/A' }}</li>
+            <li><strong>Tenant Name:</strong> {{ lease.full_name }}</li>
+            <li><strong>Email:</strong> {{ lease.email }}</li>
+            <li><strong>Start Date:</strong> {{ lease.start_date }}</li>
+            <li><strong>End Date:</strong> {{ lease.end_date or 'N/A' }}</li>
+            <li><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Full Bill History Modal -->
+    <div id="billHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeBillModal()">&times;</span>
+            <h3>Full Bill History</h3>
+
+            <label for="billYearSelect"><strong>Filter by Year:</strong></label>
+            <select id="billYearSelect" onchange="filterBillByYear()">
+                <option value="all">All Years</option>
+                {% for y in bill_years %}
+                    <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+            </select>
+
+
+            <ul id="billHistoryList">
+                {% for b in all_bills %}
+                    <li data-year="{{ b['sent_at'].year }}">
+                    <a href="{{ url_for('bill_detail', bill_id=b['id']) }}">
+                        Issued on {{ b['sent_at'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(b['total_amount']) }}
+                    </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+
+    <!-- Full Payment History Modal -->
+    <div id="paymentHistoryModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closePaymentModal()">&times;</span>
+            <h3>Full Payment History</h3>
+
+            <label for="paymentYearSelect"><strong>Filter by Year:</strong></label>
+            <select id="paymentYearSelect" onchange="filterPaymentByYear()">
+                <option value="all">All Years</option>
+                {% for y in payment_years %}
+                    <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+            </select>
+
+
+            <ul id="paymentHistoryList">
+                {% for p in all_payments %}
+                    <li data-year="{{ p['payment_date'].year }}">
+                    <a href="{{ url_for('payment_detail', payment_id=p['id']) }}">
+                        Received on {{ p['payment_date'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(p['amount']) }}
+                    </a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+        </div>
+    </div>
+
+
+    <div id="createBillModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeCreateBillModal()">&times;</span>
+        <h3>Create New Bill</h3>
+
+        <div id="bill-form-section">
+        <form id="create-bill-form">
+            <div class="form-row">
+            <label><strong>Unit Number:</strong></label>
+            <input type="text" value="{{ lease.unit_number }}" disabled>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Tenant Name:</strong></label>
+            <input type="text" value="{{ lease.full_name }}" disabled>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Email:</strong></label>
+            <input type="text" value="{{ lease.email }}" disabled>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Billing Month:</strong></label>
+            <input type="month" name="billing_month" required>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Monthly Rent:</strong></label>
+            <input type="text" value="${{ "%.2f"|format(lease.monthly_rent) }}" disabled>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Current Balance:</strong></label>
+            <input type="text" value="${{ "%.2f"|format(balance) }}" disabled>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Other Charges:</strong></label>
+            <div id="charges-list"></div>
+            <button type="button" class="btn-small" onclick="addCharge()">+ Add Charge</button>
+            </div>
+
+            <div class="form-row">
+            <label><strong>Total Amount:</strong></label>
+            <input type="text" id="totalAmountDisplay" value="$0.00" disabled>
+            </div>
+
+            <button type="button" class="btn" onclick="showBillPreview()">Finish</button>
+        </form>
+        </div>
+
+        <div id="bill-preview-section" style="display: none;">
+        <h4>Confirm Bill Preview</h4>
+        <ul>
+            <li><strong>Unit:</strong> {{ lease.unit_number }}</li>
+            <li><strong>Tenant:</strong> {{ lease.full_name }}</li>
+            <li><strong>Email:</strong> {{ lease.email }}</li>
+            <li><strong>Billing Month:</strong> <span id="preview-billing-month"></span></li>
+            <li><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</li>
+            <li><strong>Current Balance:</strong> ${{ "%.2f"|format(balance) }}</li>
+            <li><strong>Other Charges:</strong>
+            <ul id="preview-other-charges"></ul>
+            </li>
+            <li><strong>Total:</strong> <span id="preview-total-amount"></span></li>
+        </ul>
+        <button class="btn" onclick="submitBill()">Confirm & Create Bill</button>
+        <button class="btn-small" onclick="backToEdit()">Back</button>
+        </div>
+    </div>
+    </div>
+
+
+    <!-- Create Payment Modal -->
+    <div id="createPaymentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeCreatePaymentModal()">&times;</span>
+        <h3>Create Payment</h3>
+
+        <form id="create-payment-form">
+        <div class="form-row">
+            <label><strong>Unit Number:</strong></label>
+            <input type="text" value="{{ lease.unit_number }}" disabled>
+        </div>
+
+        <div class="form-row">
+            <label for="remitterName"><strong>Remitter Name:</strong></label>
+            <input type="text" id="remitterName" name="remitter_name" required>
+        </div>
+
+        <div class="form-row">
+            <label for="checkNumber"><strong>Check Number:</strong></label>
+            <input type="text" id="checkNumber" name="check_number">
+        </div>
+
+        <div class="form-row">
+            <label for="amount"><strong>Amount:</strong></label>
+            <input type="number" id="amount" name="amount" step="0.01" min="0" required>
+        </div>
+
+        <div class="form-row">
+            <label for="paymentDate"><strong>Payment Date:</strong></label>
+            <input type="date" id="paymentDate" name="payment_date" required>
+        </div>
+
+        <div class="form-row">
+            <label for="checkDate"><strong>Check Date:</strong></label>
+            <input type="date" id="checkDate" name="check_date">
+        </div>
+
+        <div class="form-row">
+            <label for="billSelect"><strong>Select Bill:</strong></label>
+            <select id="billSelect" name="bill_id" required>
+            <option value="">-- Choose a bill --</option>
+            {% for b in bill_options %}
+                <option value="{{ b.id }}">
+                {{ b.billing_month.strftime('%Y-%m') }} (Rent: ${{ "%.2f"|format(b.rent_amount) }}, Total: ${{ "%.2f"|format(b.total_amount) }})
+                </option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <button class="btn" onclick="validateAndSubmitPayment()">Submit Payment</button>
+        </form>
+    </div>
+    </div>
+
+
+    <!-- Create Payment Modal -->
+    <div id="createPaymentModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeCreatePaymentModal()">&times;</span>
+        <h3>Create New Payment</h3>
+        <form id="create-payment-form">
+        <div class="form-row">
+            <label><strong>Unit Number:</strong></label>
+            <input type="text" value="{{ lease.unit_number }}" disabled>
+        </div>
+        <div class="form-row">
+            <label><strong>Tenant Name:</strong></label>
+            <input type="text" id="tenantName" value="{{ lease.full_name }}" disabled>
+        </div>
+        <div class="form-row">
+            <label><strong>Remitter Name:</strong></label>
+            <input type="text" id="remitterName" required>
+        </div>
+        <div class="form-row">
+            <label><strong>Check Number:</strong></label>
+            <input type="text" id="checkNumber" required>
+        </div>
+        <div class="form-row">
+            <label><strong>Amount:</strong></label>
+            <input type="number" id="amount" required step="0.01" min="0">
+        </div>
+        <div class="form-row">
+            <label><strong>Payment Date:</strong></label>
+            <input type="date" id="paymentDate" required>
+        </div>
+        <div class="form-row">
+            <label><strong>Associated Bill:</strong></label>
+            <select id="billSelect" required>
+            <option value="">-- Select Bill --</option>
+            {% for b in bill_options %}
+                <option value="{{ b.id }}">
+                {{ b.billing_month.strftime('%Y-%m') }} (Rent: ${{ "%.2f"|format(b.rent_amount) }}, Total: ${{ "%.2f"|format(b.total_amount) }})
+                </option>
+            {% endfor %}
+            </select>
+        </div>
+
+        <button type="button" class="btn" onclick="validateAndSubmitPayment()">Submit</button>
+        </form>
+    </div>
+    </div>
+
+</body>
+</html>
+
+
+<script>
+  function openModal() {
+    document.getElementById('leaseModal').style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('leaseModal').style.display = 'none';
+  }
+
+  function openBillModal() {
+    document.getElementById('billHistoryModal').style.display = 'block';
+  }
+
+  function closeBillModal() {
+    document.getElementById('billHistoryModal').style.display = 'none';
+  }
+
+  function openPaymentModal() {
+    document.getElementById('paymentHistoryModal').style.display = 'block';
+  }
+
+  function closePaymentModal() {
+    document.getElementById('paymentHistoryModal').style.display = 'none';
+  }
+
+  function openCreateBillModal() {
+    document.getElementById("createBillModal").style.display = "block";
+    updateTotalAmount();
+  }
+
+  function closeCreateBillModal() {
+    document.getElementById("createBillModal").style.display = "none";
+  }
+
+  function addCharge() {
+    const container = document.getElementById("charges-list");
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "charge-entry";
+
+    const nameInput = document.createElement("input");
+    nameInput.type = "text";
+    nameInput.placeholder = "Charge Name";
+    nameInput.required = true;
+
+    const valueInput = document.createElement("input");
+    valueInput.type = "number";
+    valueInput.placeholder = "Amount";
+    valueInput.required = true;
+    valueInput.step = "0.01";
+    valueInput.min = "0";
+
+    valueInput.addEventListener("input", updateTotalAmount);
+
+    wrapper.appendChild(nameInput);
+    wrapper.appendChild(valueInput);
+    container.appendChild(wrapper);
+
+    updateTotalAmount();
+  }
+
+  function updateTotalAmount() {
+    const rent = parseFloat({{ lease.monthly_rent }}) || 0;
+    const balance = parseFloat({{ balance }}) || 0;
+
+    let otherChargesTotal = 0;
+    const chargeInputs = document.querySelectorAll("#charges-list input[type='number']");
+    chargeInputs.forEach(input => {
+      const val = parseFloat(input.value);
+      if (!isNaN(val)) {
+        otherChargesTotal += val;
+      }
+    });
+
+    const total = rent + otherChargesTotal - balance;
+    const display = document.getElementById("totalAmountDisplay");
+    if (display) {
+      display.value = `$${total.toFixed(2)}`;
+    }
+  }
+
+  function filterBillByYear() {
+    const selectedYear = document.getElementById("billYearSelect").value;
+    const items = document.querySelectorAll("#billHistoryList li");
+
+    items.forEach(item => {
+      const year = item.getAttribute("data-year");
+      item.style.display = (selectedYear === "all" || selectedYear === year) ? "list-item" : "none";
+    });
+  }
+
+  function filterPaymentByYear() {
+    const selectedYear = document.getElementById("paymentYearSelect").value;
+    const items = document.querySelectorAll("#paymentHistoryList li");
+
+    items.forEach(item => {
+      const year = item.getAttribute("data-year");
+      item.style.display = (selectedYear === "all" || selectedYear === year) ? "list-item" : "none";
+    });
+  }
+
+    window.onclick = function(event) {
+    ['leaseModal', 'billHistoryModal', 'paymentHistoryModal', 'createBillModal', 'createPaymentModal'].forEach(id => {
+        const modal = document.getElementById(id);
+        if (event.target === modal) {
+        modal.style.display = 'none';
+        }
+    });
+    }
+
+function showBillPreview() {
+  const billingMonthInput = document.querySelector("input[name='billing_month']");
+  const billingMonth = billingMonthInput.value;
+
+  if (!billingMonth) {
+    alert("⚠️ Please select a billing month before continuing.");
+    billingMonthInput.focus();
+    return;
+  }
+
+  document.getElementById("preview-billing-month").textContent = billingMonth;
+
+  const chargesList = document.querySelectorAll("#charges-list .charge-entry");
+  const previewList = document.getElementById("preview-other-charges");
+  previewList.innerHTML = "";
+
+  chargesList.forEach(entry => {
+    const name = entry.querySelector("input[type='text']").value;
+    const amount = entry.querySelector("input[type='number']").value;
+    if (name && amount) {
+      const li = document.createElement("li");
+      li.textContent = `${name}: $${parseFloat(amount).toFixed(2)}`;
+      previewList.appendChild(li);
+    }
+  });
+
+  const totalAmount = document.getElementById("totalAmountDisplay").value;
+  document.getElementById("preview-total-amount").textContent = totalAmount;
+  document.getElementById("bill-form-section").style.display = "none";
+  document.getElementById("bill-preview-section").style.display = "block";
+}
+
+function backToEdit() {
+  document.getElementById("bill-preview-section").style.display = "none";
+  document.getElementById("bill-form-section").style.display = "block";
+}
+
+function submitBill() {
+  if (!confirm("Are you sure you want to create and send this bill?")) {
+    return;
+  }
+
+  const billingMonth = document.querySelector("input[name='billing_month']").value;
+
+  const charges = {};
+  const entries = document.querySelectorAll("#charges-list .charge-entry");
+  entries.forEach(entry => {
+    const name = entry.querySelector("input[type='text']").value;
+    const amount = entry.querySelector("input[type='number']").value;
+    if (name && amount) {
+      charges[name] = parseFloat(amount);
+    }
+  });
+
+  const totalAmount = parseFloat(document.getElementById("totalAmountDisplay").value.replace('$', '')) || 0;
+  const monthlyRent = parseFloat({{ lease.monthly_rent }});
+  const balanceUsed = parseFloat({{ balance }});
+
+  const payload = {
+    billing_month: billingMonth,
+    rent_amount: monthlyRent,
+    other_charges: charges,
+    balance_used: balanceUsed,
+    total_amount: totalAmount
+  };
+
+  fetch(`/unit/{{ apartment_id }}/create-bill`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(response => {
+    if (response.ok) {
+      showToast("Bill created and email sent!");
+      setTimeout(() => window.location.reload(), 3200);
+    } else {
+      alert("Failed to create bill.");
+    }
+  });
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 500);
+  }, 3000);
+}
+
+function openCreatePaymentModal() {
+  document.getElementById("createPaymentModal").style.display = "block";
+}
+
+function closeCreatePaymentModal() {
+  document.getElementById("createPaymentModal").style.display = "none";
+}
+
+
+function validateAndSubmitPayment() {
+  const remitterName = document.getElementById("remitterName").value.trim();
+  const tenantName = document.getElementById("tenantName").value.trim();
+  const checkNumber = document.getElementById("checkNumber").value.trim();
+  const amount = document.getElementById("amount").value;
+  const paymentDate = document.getElementById("paymentDate").value;
+  const billId = document.getElementById("billSelect").value;
+
+  if (!remitterName || !checkNumber || !amount || !paymentDate || !billId) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  if (remitterName.toLowerCase() !== tenantName.toLowerCase()) {
+    alert("❌ Remitter name does not match tenant name. Payment not accepted.");
+    return;
+  }
+
+  if (!confirm("Are you sure you want to record this payment?")) {
+    return;
+  }
+
+  const payload = {
+    bill_id: parseInt(billId),
+    amount: parseFloat(amount),
+    payment_date: paymentDate,
+    check_number: checkNumber,
+    remitter_name: remitterName
+  };
+
+  fetch(`/unit/{{ apartment_id }}/create-payment`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).then(res => {
+    if (res.ok) {
+      showToast("✅ Payment successfully recorded!");
+      setTimeout(() => window.location.reload(), 2500);
+    } else {
+      alert("❌ Failed to record payment.");
+    }
+  });
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  toast.style.display = "block";
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => {
+      toast.style.display = "none";
+    }, 500);
+  }, 3000);
+}
+
+
+</script>

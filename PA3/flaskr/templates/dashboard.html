@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="navbar-left">Rent Management System</div>
+    <div class="navbar-right">Property Address: 270 Holding, LLC</div>
+  </nav>
+
+  <main class="container">
+    <div class="card">
+      <div class="image-box">PNG</div>
+      <div class="card-content">
+        <h2>Bill & Payment</h2>
+        <p>Intro of function goes here.</p>
+        <a class="card-btn" href="{{ url_for('bill_payment_dashboard') }}">Enter</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="image-box">PNG</div>
+      <div class="card-content">
+        <h2>Unit Information</h2>
+        <p>Intro of function goes here.</p>
+        <a class="card-btn" href="#">Enter</a>
+      </div>
+    </div>
+  </main>
+
+</body>
+</html>
