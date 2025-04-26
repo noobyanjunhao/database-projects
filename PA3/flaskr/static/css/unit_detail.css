@@ -76,7 +76,7 @@ body {
 .unit-layout {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 2rem;
+  gap: 4rem;
 }
 
 /* Card Styles */
@@ -88,7 +88,7 @@ body {
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.05);
   height: 699px;
-  width:400px;
+  width:430px;
   display: flex;
   flex-direction: column;
 }
@@ -151,7 +151,6 @@ body {
   font-size: 17px;
   font-weight: bold;
   line-height: 1.5;
-
 }
 
 .info-card .card-content p strong {
@@ -163,7 +162,7 @@ body {
 
 .card-content-left {
   padding: 1.5rem;
-  margin-left:60px;
+  margin-left:80px;
   margin-top: 40px;
 }
 
@@ -173,7 +172,6 @@ body {
   font-size: 17px;
   font-weight: bold;
   line-height: 1.5;
-
 }
 
 .card-content-left p strong {
