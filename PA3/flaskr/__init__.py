@@ -148,7 +148,6 @@ def create_app():
 
         payment_years = sorted(set(p["payment_date"].year for p in all_payments))
         all_bills_calc = db.execute("SELECT rent_amount, other_charges FROM Bill WHERE lease_id = ?", (lease_id,)).fetchall()
-        # all_payments = db.execute("SELECT amount FROM Payment WHERE bill_id IN (SELECT id FROM Bill WHERE lease_id = ?)", (lease_id,)).fetchall()
 
         total_due = 0.0
         for bill in all_bills_calc:
@@ -284,40 +283,6 @@ def create_app():
 
         return render_template("payment_detail.html", payment=payment)
 
-
-    # @app.route('/units')
-    # def units_overview():
-    #     db = get_db()
-
-    #     search = request.args.get('search', '').lower()
-    #     ownership = request.args.get('ownership', '')
-    #     special_only = request.args.get('special') == '1'
-
-    #     query = """
-    #         SELECT A.id AS apartment_id, A.unit_number, A.unit_size, A.ownership_type, A.is_special,
-    #             T.full_name, L.monthly_rent, L.end_date
-    #         FROM Apartment A
-    #         LEFT JOIN Lease L ON L.apartment_id = A.id
-    #         LEFT JOIN Tenant T ON T.id = L.tenant_id
-    #         WHERE 1=1
-    #     """
-
-    #     args = []
-
-    #     if search:
-    #         query += " AND (LOWER(A.unit_number) LIKE ? OR LOWER(T.full_name) LIKE ?)"
-    #         args.extend([f"%{search}%", f"%{search}%"])
-
-    #     if ownership:
-    #         query += " AND A.ownership_type = ?"
-    #         args.append(ownership)
-
-    #     if special_only:
-    #         query += " AND A.is_special = 1"
-
-    #     data = db.execute(query, args).fetchall()
-    #     return render_template('units_overview.html', data=data)
-    
     @app.route('/units')
     def units_overview():
         db = get_db()
@@ -396,8 +361,6 @@ def create_app():
         db.commit()
         return "", 200
 
-
-
     @app.route('/units/export')
     def export_units():
         db = get_db()
@@ -439,9 +402,6 @@ def create_app():
             download_name="units_overview.xlsx",
             mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-
-
-
 
     return app
 
