@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unit Details</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/unit_detail.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -13,365 +15,392 @@
   </nav>
 
   <main class="unit-page">
-  <div id="toast" class="toast" style="display:none;">Bill successfully created and email sent!</div>
-    <h1>Unit {{ lease.unit_number }}</h1>
-        <div class="unit-layout">
-
-            <div class="info-card">
-                <p><strong>Tenant Name:</strong> {{ lease.full_name }}</p>
-                <p><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</p>
-                <p><strong>End Date:</strong> {{ lease.end_date or "N/A" }}</p>
-                <p><strong>Current Balance:</strong> ${{ "%.2f"|format(balance) }}</p>
-                <a class="btn" href="#" onclick="openModal()">See Full Lease</a>
-            </div>
-
-            <div class="history-panel">
-                <div class="panel-card">
-                    <h2>Bill</h2>
-                    <button class="btn" onclick="openCreateBillModal()">Create Bill</button>
-                    <div class="section">
-                        <h4>Past Bills</h4>
-                        <ul>
-                        {% for b in bills %}
-                            <li>
-                            <a href="{{ url_for('bill_detail', bill_id=b['id']) }}">
-                                Issued on {{ b['sent_at'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(b['total_amount']) }}
-                            </a>
-                            </li>
-                        {% else %}
-                            <li>No bills found.</li>
-                        {% endfor %}
-                        </ul>
-                        <a class="btn-small" href="#" onclick="openBillModal()">See Full History</a>
-                    </div>
-                </div>
-
-                <div class="panel-card">
-                    <h2>Payment</h2>
-                    <button class="btn" onclick="openCreatePaymentModal()">Create Payment</button>
-                    <div class="section">
-                        <h4>Past Payments</h4>
-                        <ul>
-                        {% for p in payments %}
-                            <li>
-                                <a href="{{ url_for('payment_detail', payment_id=p['id']) }}">
-                                    Received on {{ p['payment_date'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(p['amount']) }}
-                                </a>
-                            </li>
-                        {% else %}
-                            <li>No payments found.</li>
-                        {% endfor %}
-                        </ul>
-                        <a class="btn-small" href="#" onclick="openPaymentModal()">See Full History</a>
-                    </div>
-                </div>
-            </div>
+    <div id="toast" class="toast" style="display:none;">Bill successfully created and email sent!</div>
+    
+    <div class="page-header">
+      <h1>Unit {{ lease.unit_number }}</h1>
+    </div>
+    
+    <div class="unit-layout">
+      <div class="info-card">
+        <div class="card-header">
+          <h2>Unit Information</h2>
         </div>
+        <div class="card-content">
+          <p><strong>Tenant Name:</strong> {{ lease.full_name }}</p>
+          <p><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</p>
+          <p><strong>End Date:</strong> {{ lease.end_date or "N/A" }}</p>
+          <p><strong>Current Balance:</strong> ${{ "%.2f"|format(balance) }}</p>
+          <a class="btn" href="#" onclick="openModal()">
+            See Full Lease
+            <i class="fas fa-chevron-right"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="history-panel">
+        <div class="panel-card">
+          <div class="card-header">
+            <h2>Bill Management</h2>
+          </div>
+          <div class="card-content">
+            <button class="btn" onclick="openCreateBillModal()">
+              Create Bill
+            </button>
+            <div class="section">
+              <h3>Recent Bills</h3>
+              <ul class="history-list">
+                {% for b in bills %}
+                  <li>
+                    <a href="{{ url_for('bill_detail', bill_id=b['id']) }}" class="history-item">
+                      <span class="date">{{ b['sent_at'].strftime('%Y-%m-%d') }}</span>
+                      <span class="amount">${{ "%.2f"|format(b['total_amount']) }}</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="empty-list">No bills found.</li>
+                {% endfor %}
+              </ul>
+              <a class="btn-small" href="#" onclick="openBillModal()">
+                See Full History
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div class="card-header">
+            <h2>Payment Management</h2>
+          </div>
+          <div class="card-content">
+            <button class="btn" onclick="openCreatePaymentModal()">
+              Create Payment
+            </button>
+            <div class="section">
+              <h3>Recent Payments</h3>
+              <ul class="history-list">
+                {% for p in payments %}
+                  <li>
+                    <a href="{{ url_for('payment_detail', payment_id=p['id']) }}" class="history-item">
+                      <span class="date">{{ p['payment_date'].strftime('%Y-%m-%d') }}</span>
+                      <span class="amount">${{ "%.2f"|format(p['amount']) }}</span>
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="empty-list">No payments found.</li>
+                {% endfor %}
+              </ul>
+              <a class="btn-small" href="#" onclick="openPaymentModal()">
+                See Full History
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
-    <div id="leaseModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <h3>Lease Details</h3>
-
-            <form id="leaseForm">
-            <div class="form-row"><strong>Unit Number:</strong> {{ lease.unit_number }}</div>
-
-            <div class="form-row"><strong>Unit Size:</strong> {{ lease.unit_size or 'N/A' }}</div>
-
-            <div class="form-row">
-                <label><strong>Unit Type:</strong></label>
-                <select id="ownershipTypeInput" disabled>
-                    {% for type in ['rent_controlled', 'rent_stabilized', 'market'] %}
-                        <option value="{{ type }}" {% if lease.ownership_type == type %}selected{% endif %}>
-                        {{ type.replace('_', ' ').title() }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="form-row">
-                <label><strong>Tenant Name:</strong></label>
-                <input type="text" name="tenant_name" id="tenantNameInput" value="{{ lease.full_name }}" disabled>
-            </div>
-
-            <div class="form-row">
-                <label><strong>Email:</strong></label>
-                <input type="email" name="email" id="tenantEmailInput" value="{{ lease.email }}" disabled>
-            </div>
-
-            <div class="form-row">
-                <label><strong>Start Date:</strong></label>
-                <input type="date" name="start_date" id="startDateInput" value="{{ lease.start_date }}" disabled>
-            </div>
-
-            <div class="form-row">
-                <label><strong>End Date:</strong></label>
-                <input type="date" name="end_date" id="endDateInput" value="{{ lease.end_date or '' }}" disabled>
-            </div>
-
-            <div class="form-row">
-                <label><strong>Is Special:</strong></label>
-                <select id="isSpecialSelect" disabled onchange="toggleRentEditability()">
-                <option value="0" {% if not lease.is_special %}selected{% endif %}>No</option>
-                <option value="1" {% if lease.is_special %}selected{% endif %}>Yes</option>
-                </select>
-            </div>
-
-            <div class="form-row">
-                <label><strong>Monthly Rent:</strong></label>
-                <input type="number" id="monthlyRentInput" value="{{ lease.monthly_rent }}" disabled step="0.01" min="0">
-            </div>
-
-            <div class="form-row">
-                <button type="button" id="editLeaseBtn" onclick="enableLeaseEditing()">Edit</button>
-                <button class="btn" id="saveLeaseBtn" style="display: none;" onclick="submitLeaseUpdate()">Save</button>
-            </div>
-            </form>
-        </div>
-    </div>
-
-
-    <!-- Full Bill History Modal -->
-    <div id="billHistoryModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeBillModal()">&times;</span>
-            <h3>Full Bill History</h3>
-
-            <label for="billYearSelect"><strong>Filter by Year:</strong></label>
-            <select id="billYearSelect" onchange="filterBillByYear()">
-                <option value="all">All Years</option>
-                {% for y in bill_years %}
-                    <option value="{{ y }}">{{ y }}</option>
-                {% endfor %}
-            </select>
-
-
-            <ul id="billHistoryList">
-                {% for b in all_bills %}
-                    <li data-year="{{ b['sent_at'].year }}">
-                    <a href="{{ url_for('bill_detail', bill_id=b['id']) }}">
-                        Issued on {{ b['sent_at'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(b['total_amount']) }}
-                    </a>
-                    </li>
-                {% endfor %}
-            </ul>
-
-        </div>
-    </div>
-
-    <!-- Full Payment History Modal -->
-    <div id="paymentHistoryModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closePaymentModal()">&times;</span>
-            <h3>Full Payment History</h3>
-
-            <label for="paymentYearSelect"><strong>Filter by Year:</strong></label>
-            <select id="paymentYearSelect" onchange="filterPaymentByYear()">
-                <option value="all">All Years</option>
-                {% for y in payment_years %}
-                    <option value="{{ y }}">{{ y }}</option>
-                {% endfor %}
-            </select>
-
-
-            <ul id="paymentHistoryList">
-                {% for p in all_payments %}
-                    <li data-year="{{ p['payment_date'].year }}">
-                    <a href="{{ url_for('payment_detail', payment_id=p['id']) }}">
-                        Received on {{ p['payment_date'].strftime('%Y-%m-%d') }}: ${{ "%.2f"|format(p['amount']) }}
-                    </a>
-                    </li>
-                {% endfor %}
-            </ul>
-
-        </div>
-    </div>
-
-
-    <div id="createBillModal" class="modal">
+  <!-- Lease Modal -->
+  <div id="leaseModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeCreateBillModal()">&times;</span>
-        <h3>Create New Bill</h3>
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      <div class="modal-header">
+        <h3>Lease Details</h3>
+      </div>
 
-        <div id="bill-form-section">
+      <form id="leaseForm">
+        <div class="form-row">
+          <label><strong>Unit Number:</strong></label>
+          <input type="text" value="{{ lease.unit_number }}" disabled>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Unit Size:</strong></label>
+          <input type="text" value="{{ lease.unit_size or 'N/A' }}" disabled>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Unit Type:</strong></label>
+          <select id="ownershipTypeInput" disabled>
+            {% for type in ['rent_controlled', 'rent_stabilized', 'market'] %}
+              <option value="{{ type }}" {% if lease.ownership_type == type %}selected{% endif %}>
+                {{ type.replace('_', ' ').title() }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Tenant Name:</strong></label>
+          <input type="text" name="tenant_name" id="tenantNameInput" value="{{ lease.full_name }}" disabled>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Email:</strong></label>
+          <input type="email" name="email" id="tenantEmailInput" value="{{ lease.email }}" disabled>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Start Date:</strong></label>
+          <input type="date" name="start_date" id="startDateInput" value="{{ lease.start_date }}" disabled>
+        </div>
+
+        <div class="form-row">
+          <label><strong>End Date:</strong></label>
+          <input type="date" name="end_date" id="endDateInput" value="{{ lease.end_date or '' }}" disabled>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Is Special:</strong></label>
+          <select id="isSpecialSelect" disabled onchange="toggleRentEditability()">
+            <option value="0" {% if not lease.is_special %}selected{% endif %}>No</option>
+            <option value="1" {% if lease.is_special %}selected{% endif %}>Yes</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <label><strong>Monthly Rent:</strong></label>
+          <input type="number" id="monthlyRentInput" value="{{ lease.monthly_rent }}" disabled step="0.01" min="0">
+        </div>
+
+        <div class="form-action">
+          <button type="button" id="editLeaseBtn" class="btn" onclick="enableLeaseEditing()">
+           Edit
+          </button>
+          <button type="button" class="btn" id="saveLeaseBtn" style="display: none;" onclick="submitLeaseUpdate()">
+           Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Full Bill History Modal -->
+  <div id="billHistoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeBillModal()">&times;</span>
+      <div class="modal-header">
+        <h3>Full Bill History</h3>
+      </div>
+
+      <div class="filter-section">
+        <label for="billYearSelect"><strong>Filter by Year:</strong></label>
+        <select id="billYearSelect" onchange="filterBillByYear()">
+          <option value="all">All Years</option>
+          {% for y in bill_years %}
+            <option value="{{ y }}">{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <ul id="billHistoryList" class="history-list full">
+        {% for b in all_bills %}
+          <li data-year="{{ b['sent_at'].year }}">
+            <a href="{{ url_for('bill_detail', bill_id=b['id']) }}" class="history-item">
+              <span class="date">{{ b['sent_at'].strftime('%Y-%m-%d') }}</span>
+              <span class="amount">${{ "%.2f"|format(b['total_amount']) }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Full Payment History Modal -->
+  <div id="paymentHistoryModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closePaymentModal()">&times;</span>
+      <div class="modal-header">
+        <h3>Full Payment History</h3>
+      </div>
+
+      <div class="filter-section">
+        <label for="paymentYearSelect"><strong>Filter by Year:</strong></label>
+        <select id="paymentYearSelect" onchange="filterPaymentByYear()">
+          <option value="all">All Years</option>
+          {% for y in payment_years %}
+            <option value="{{ y }}">{{ y }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <ul id="paymentHistoryList" class="history-list full">
+        {% for p in all_payments %}
+          <li data-year="{{ p['payment_date'].year }}">
+            <a href="{{ url_for('payment_detail', payment_id=p['id']) }}" class="history-item">
+              <span class="date">{{ p['payment_date'].strftime('%Y-%m-%d') }}</span>
+              <span class="amount">${{ "%.2f"|format(p['amount']) }}</span>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Create Bill Modal -->
+  <div id="createBillModal" class="modal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeCreateBillModal()">&times;</span>
+      <div class="modal-header">
+        <h3>Create New Bill</h3>
+      </div>
+
+      <div id="bill-form-section">
         <form id="create-bill-form">
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Unit Number:</strong></label>
             <input type="text" value="{{ lease.unit_number }}" disabled>
-            </div>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Tenant Name:</strong></label>
             <input type="text" value="{{ lease.full_name }}" disabled>
-            </div>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Email:</strong></label>
             <input type="text" value="{{ lease.email }}" disabled>
-            </div>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Billing Month:</strong></label>
             <input type="month" name="billing_month" required>
-            </div>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Monthly Rent:</strong></label>
             <input type="text" value="${{ "%.2f"|format(lease.monthly_rent) }}" disabled>
-            </div>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Current Balance:</strong></label>
             <input type="text" value="${{ "%.2f"|format(balance) }}" disabled>
-            </div>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row">
             <label><strong>Other Charges:</strong></label>
-            <div id="charges-list"></div>
-            <button type="button" class="btn-small" onclick="addCharge()">+ Add Charge</button>
-            </div>
+            <div id="charges-list" class="charges-container"></div>
+            <button type="button" class="btn-small" onclick="addCharge()">
+            Add Charge
+            </button>
+          </div>
 
-            <div class="form-row">
+          <div class="form-row total-row">
             <label><strong>Total Amount:</strong></label>
             <input type="text" id="totalAmountDisplay" value="$0.00" disabled>
-            </div>
+          </div>
 
-            <button type="button" class="btn" onclick="showBillPreview()">Finish</button>
+          <div class="form-action">
+            <button type="button" class="btn" onclick="showBillPreview()">
+            Finish
+            </button>
+          </div>
         </form>
-        </div>
+      </div>
 
-        <div id="bill-preview-section" style="display: none;">
+      <div id="bill-preview-section" style="display: none;">
         <h4>Confirm Bill Preview</h4>
-        <ul>
-            <li><strong>Unit:</strong> {{ lease.unit_number }}</li>
-            <li><strong>Tenant:</strong> {{ lease.full_name }}</li>
-            <li><strong>Email:</strong> {{ lease.email }}</li>
-            <li><strong>Billing Month:</strong> <span id="preview-billing-month"></span></li>
-            <li><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</li>
-            <li><strong>Current Balance:</strong> ${{ "%.2f"|format(balance) }}</li>
-            <li><strong>Other Charges:</strong>
-            <ul id="preview-other-charges"></ul>
-            </li>
-            <li><strong>Total:</strong> <span id="preview-total-amount"></span></li>
-        </ul>
-        <button class="btn" onclick="submitBill()">Confirm & Create Bill</button>
-        <button class="btn-small" onclick="backToEdit()">Back</button>
+        <div class="preview-container">
+          <div class="preview-row">
+            <strong>Unit:</strong> <span>{{ lease.unit_number }}</span>
+          </div>
+          <div class="preview-row">
+            <strong>Tenant:</strong> <span>{{ lease.full_name }}</span>
+          </div>
+          <div class="preview-row">
+            <strong>Email:</strong> <span>{{ lease.email }}</span>
+          </div>
+          <div class="preview-row">
+            <strong>Billing Month:</strong> <span id="preview-billing-month"></span>
+          </div>
+          <div class="preview-row">
+            <strong>Monthly Rent:</strong> <span>${{ "%.2f"|format(lease.monthly_rent) }}</span>
+          </div>
+          <div class="preview-row">
+            <strong>Current Balance:</strong> <span>${{ "%.2f"|format(balance) }}</span>
+          </div>
+          <div class="preview-row">
+            <strong>Other Charges:</strong>
+            <ul id="preview-other-charges" class="preview-list"></ul>
+          </div>
+          <div class="preview-row total">
+            <strong>Total:</strong> <span id="preview-total-amount"></span>
+          </div>
         </div>
+        <div class="form-action">
+          <button class="btn" onclick="submitBill()">
+        Confirm & Create Bill
+          </button>
+          <button class="btn-small" onclick="backToEdit()">
+        Back
+          </button>
+        </div>
+      </div>
     </div>
-    </div>
+  </div>
 
-
-    <!-- Create Payment Modal -->
-    <div id="createPaymentModal" class="modal">
+  <!-- Create Payment Modal -->
+  <div id="createPaymentModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeCreatePaymentModal()">&times;</span>
-        <h3>Create Payment</h3>
-
-        <form id="create-payment-form">
-        <div class="form-row">
-            <label><strong>Unit Number:</strong></label>
-            <input type="text" value="{{ lease.unit_number }}" disabled>
-        </div>
-
-        <div class="form-row">
-            <label for="remitterName"><strong>Remitter Name:</strong></label>
-            <input type="text" id="remitterName" name="remitter_name" required>
-        </div>
-
-        <div class="form-row">
-            <label for="checkNumber"><strong>Check Number:</strong></label>
-            <input type="text" id="checkNumber" name="check_number">
-        </div>
-
-        <div class="form-row">
-            <label for="amount"><strong>Amount:</strong></label>
-            <input type="number" id="amount" name="amount" step="0.01" min="0" required>
-        </div>
-
-        <div class="form-row">
-            <label for="paymentDate"><strong>Payment Date:</strong></label>
-            <input type="date" id="paymentDate" name="payment_date" required>
-        </div>
-
-        <div class="form-row">
-            <label for="checkDate"><strong>Check Date:</strong></label>
-            <input type="date" id="checkDate" name="check_date">
-        </div>
-
-        <div class="form-row">
-            <label for="billSelect"><strong>Select Bill:</strong></label>
-            <select id="billSelect" name="bill_id" required>
-            <option value="">-- Choose a bill --</option>
-            {% for b in bill_options %}
-                <option value="{{ b.id }}">
-                {{ b.billing_month.strftime('%Y-%m') }} (Rent: ${{ "%.2f"|format(b.rent_amount) }}, Total: ${{ "%.2f"|format(b.total_amount) }})
-                </option>
-            {% endfor %}
-            </select>
-        </div>
-
-        <button class="btn" onclick="validateAndSubmitPayment()">Submit Payment</button>
-        </form>
-    </div>
-    </div>
-
-
-    <!-- Create Payment Modal -->
-    <div id="createPaymentModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeCreatePaymentModal()">&times;</span>
+      <span class="close-btn" onclick="closeCreatePaymentModal()">&times;</span>
+      <div class="modal-header">
         <h3>Create New Payment</h3>
-        <form id="create-payment-form">
+      </div>
+
+      <form id="create-payment-form">
         <div class="form-row">
-            <label><strong>Unit Number:</strong></label>
-            <input type="text" value="{{ lease.unit_number }}" disabled>
+          <label><strong>Unit Number:</strong></label>
+          <input type="text" value="{{ lease.unit_number }}" disabled>
         </div>
+        
         <div class="form-row">
-            <label><strong>Tenant Name:</strong></label>
-            <input type="text" id="tenantName" value="{{ lease.full_name }}" disabled>
+          <label><strong>Tenant Name:</strong></label>
+          <input type="text" id="tenantName" value="{{ lease.full_name }}" disabled>
         </div>
+        
         <div class="form-row">
-            <label><strong>Remitter Name:</strong></label>
-            <input type="text" id="remitterName" required>
+          <label><strong>Remitter Name:</strong></label>
+          <input type="text" id="remitterName" required>
         </div>
+        
         <div class="form-row">
-            <label><strong>Check Number:</strong></label>
-            <input type="text" id="checkNumber" required>
+          <label><strong>Check Number:</strong></label>
+          <input type="text" id="checkNumber" required>
         </div>
+        
         <div class="form-row">
-            <label><strong>Amount:</strong></label>
-            <input type="number" id="amount" required step="0.01" min="0">
+          <label><strong>Amount:</strong></label>
+          <input type="number" id="amount" required step="0.01" min="0">
         </div>
+        
         <div class="form-row">
-            <label><strong>Payment Date:</strong></label>
-            <input type="date" id="paymentDate" required>
+          <label><strong>Payment Date:</strong></label>
+          <input type="date" id="paymentDate" required>
         </div>
+        
         <div class="form-row">
-            <label><strong>Associated Bill:</strong></label>
-            <select id="billSelect" required>
+          <label><strong>Associated Bill:</strong></label>
+          <select id="billSelect" required>
             <option value="">-- Select Bill --</option>
             {% for b in bill_options %}
-                <option value="{{ b.id }}">
+              <option value="{{ b.id }}">
                 {{ b.billing_month.strftime('%Y-%m') }} (Rent: ${{ "%.2f"|format(b.rent_amount) }}, Total: ${{ "%.2f"|format(b.total_amount) }})
-                </option>
+              </option>
             {% endfor %}
-            </select>
+          </select>
         </div>
 
-        <button type="button" class="btn" onclick="validateAndSubmitPayment()">Submit</button>
-        </form>
+        <div class="form-action">
+          <button type="button" class="btn" onclick="validateAndSubmitPayment()">
+            Submit
+          </button>
+        </div>
+      </form>
     </div>
-    </div>
+  </div>
 
-</body>
-</html>
-
-
-<script>
-
-
-let isEditingLease = false;
+  <script>
+    let isEditingLease = false;
 
 function openModal() {
   isEditingLease = false;
@@ -734,7 +763,6 @@ function setLeaseViewMode() {
 
   isEditingLease = false;
 }
-
-
-
-</script>
+  </script>
+</body>
+</html>

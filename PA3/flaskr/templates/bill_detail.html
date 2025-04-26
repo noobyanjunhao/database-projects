@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bill Detail</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bill_detail.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
   <div class="invoice-container">
     <div class="header">
       <div>
@@ -59,6 +60,5 @@
       <div class="total-amount">${{ "%.2f"|format(bill.total_amount) }}</div>
     </div>
   </div>
-
 </body>
 </html>

@@ -2,11 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-
   <nav class="navbar">
     <div class="navbar-left">Rent Management System</div>
     <div class="navbar-right">Property Address: 270 Holding, LLC</div>
@@ -14,23 +15,32 @@
 
   <main class="container">
     <div class="card">
-      <div class="image-box">PNG</div>
+      <div class="image-box">
+        <i class="fas fa-file-invoice-dollar"></i>
+      </div>
       <div class="card-content">
         <h2>Bill & Payment</h2>
         <p>Intro of function goes here.</p>
-        <a class="card-btn" href="{{ url_for('bill_payment_dashboard') }}">Enter</a>
+        <a class="card-btn" href="{{ url_for('bill_payment_dashboard') }}">
+          Enter
+          <i class="fas fa-chevron-right"></i>
+        </a>
       </div>
     </div>
 
     <div class="card">
-      <div class="image-box">PNG</div>
+      <div class="image-box">
+        <i class="fas fa-building"></i>
+      </div>
       <div class="card-content">
         <h2>Unit Information</h2>
         <p>Intro of function goes here.</p>
-        <a class="card-btn" href="{{ url_for('units_overview') }}">Enter</a>
+        <a class="card-btn" href="{{ url_for('units_overview') }}">
+          Enter
+          <i class="fas fa-chevron-right"></i>
+        </a>
       </div>
     </div>
   </main>
-
 </body>
 </html>

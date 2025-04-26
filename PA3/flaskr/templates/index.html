@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Rent Management System</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-  <h1>Rent Management System</h1>
-  <a class="btn" href="{{ url_for('dashboard') }}">Get Started</a>
+  <div class="container">
+    <h1>Rent Management System</h1>
+    <p class="tagline">Manage your housing rental business efficiently</p>
+    <a class="btn" href="{{ url_for('dashboard') }}">
+      <span>Start Now</span>
+      <i class="fas fa-arrow-right"></i>
+    </a>
+  </div>
 </body>
 </html>

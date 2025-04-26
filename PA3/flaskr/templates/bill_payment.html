@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bill & Payment Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/bill_payment.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -14,58 +16,84 @@
   </nav>
 
   <main class="bp-container">
+    <div class="page-header">
+      <h1>Bill & Payment Dashboard</h1>
+    </div>
 
     <!-- Filters -->
-    <form method="get" class="controls" id="filterForm">
-      <input type="text" name="search" placeholder="Search by Unit or Tenant"
-             value="{{ request.args.get('search', '') }}">
+    <div class="filter-container">
+      <form method="get" class="controls" id="filterForm">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" name="search" placeholder="Search by Unit or Tenant"
+                value="{{ request.args.get('search', '') }}">
+        </div>
 
-      <select name="ownership" onchange="submitFilterForm()">
-        <option value="">All Ownership Types</option>
-        {% for type in ['sold', 'rent_controlled', 'rent_stabilized', 'market'] %}
-          <option value="{{ type }}" {% if request.args.get('ownership') == type %}selected{% endif %}>
-            {{ type.replace('_', ' ').title() }}
-          </option>
-        {% endfor %}
-      </select>
+        <div class="filter-group">
+          <select name="ownership" onchange="submitFilterForm()">
+            <option value="">All Ownership Types</option>
+            {% for type in ['sold', 'rent_controlled', 'rent_stabilized', 'market'] %}
+              <option value="{{ type }}" {% if request.args.get('ownership') == type %}selected{% endif %}>
+                {{ type.replace('_', ' ').title() }}
+              </option>
+            {% endfor %}
+          </select>
 
-      <label>
-        <input type="checkbox" name="special" value="1"
-               onchange="submitFilterForm()"
-               {% if request.args.get('special') == '1' %}checked{% endif %}>
-        Special Only
-      </label>
-    </form>
+          <label class="checkbox-container">
+            <input type="checkbox" name="special" value="1"
+                  onchange="submitFilterForm()"
+                  {% if request.args.get('special') == '1' %}checked{% endif %}>
+            <span class="checkmark"></span>
+            Special Only
+          </label>
+        </div>
+      </form>
+    </div>
 
     <!-- Data Table -->
-    <table class="bp-table">
-      <thead>
-        <tr>
-          <th>Unit Number</th>
-          <th>Ownership Type</th>
-          <th>Tenant Name</th>
-          <th>Is Special</th>
-        </tr>
-      </thead>
-      <tbody id="table-body">
-        {% for row in data %}
+    <div class="table-container">
+      <table class="bp-table">
+        <thead>
           <tr>
-            <td>
-                <a href="{{ url_for('unit_detail', unit_id=row['apartment_id']) }}">
-                    {{ row['unit_number'] }}
-                </a>
-            </td>
-
-            <td>{{ row['ownership_type'] }}</td>
-            <td>{{ row['full_name'] }}</td>
-            <td>{{ 'Yes' if row['is_special'] else 'No' }}</td>
+            <th>Unit Number</th>
+            <th>Ownership Type</th>
+            <th>Tenant Name</th>
+            <th>Is Special</th>
           </tr>
-        {% else %}
-          <tr><td colspan="4">No results found.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
+        </thead>
+        <tbody id="table-body">
+          {% for row in data %}
+            <tr>
+              <td>
+                <a href="{{ url_for('unit_detail', unit_id=row['apartment_id']) }}" class="unit-link">
+                  {{ row['unit_number'] }}
+                </a>
+              </td>
+              <td>{{ row['ownership_type'] }}</td>
+              <td>{{ row['full_name'] }}</td>
+              <td>
+                {% if row['is_special'] %}
+                  <span class="badge-special">
+                    <i class="fas fa-star"></i> Yes
+                  </span>
+                {% else %}
+                  <span class="badge-regular">No</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% else %}
+            <tr class="no-data-row">
+              <td colspan="4">
+                <div class="no-data">
+                  <i class="fas fa-search"></i>
+                  <p>No results found.</p>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </main>
 
   <!-- Auto-submit script -->

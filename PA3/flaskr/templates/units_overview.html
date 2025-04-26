@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unit Information Overview</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/units_overview.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -14,54 +16,73 @@
   </nav>
 
   <main class="container">
-
-    <div class="export-button-container">
-      <a href="{{ url_for('export_units') }}" class="btn export-btn">Export to Excel</a>
+    <div class="page-header">
+      <h1>Unit Information Overview</h1>
+      <div class="export-button-container">
+        <a href="{{ url_for('export_units') }}" class="btn export-btn">
+          <i class="fas fa-file-export"></i> Export to Excel
+        </a>
+      </div>
     </div>
 
     <!-- Filters -->
-    <form method="get" class="controls" id="filterForm">
-      <input type="text" name="search" placeholder="Search by Unit or Tenant"
-             value="{{ request.args.get('search', '') }}">
+    <div class="filter-container">
+      <form method="get" class="controls" id="filterForm">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" name="search" placeholder="Search by Unit or Tenant"
+                value="{{ request.args.get('search', '') }}">
+        </div>
 
-      <select name="ownership" onchange="submitFilterForm()">
-        <option value="">All Ownership Types</option>
-        {% for type in ['sold', 'rent_controlled', 'rent_stabilized', 'market'] %}
-          <option value="{{ type }}" {% if request.args.get('ownership') == type %}selected{% endif %}>
-            {{ type.replace('_', ' ').title() }}
-          </option>
-        {% endfor %}
-      </select>
+        <div class="filter-group">
+          <select name="ownership" onchange="submitFilterForm()">
+            <option value="">All Ownership Types</option>
+            {% for type in ['sold', 'rent_controlled', 'rent_stabilized', 'market'] %}
+              <option value="{{ type }}" {% if request.args.get('ownership') == type %}selected{% endif %}>
+                {{ type.replace('_', ' ').title() }}
+              </option>
+            {% endfor %}
+          </select>
 
-      <label>
-        <input type="checkbox" name="special" value="1"
-               onchange="submitFilterForm()"
-               {% if request.args.get('special') == '1' %}checked{% endif %}>
-        Special Only
-      </label>
-    </form>
+          <label class="checkbox-container">
+            <input type="checkbox" name="special" value="1"
+                  onchange="submitFilterForm()"
+                  {% if request.args.get('special') == '1' %}checked{% endif %}>
+            <span class="checkmark"></span>
+            Special Only
+          </label>
+        </div>
+      </form>
+    </div>
 
     <!-- Units Display -->
     <div class="unit-grid">
       {% for u in data %}
         <div class="unit-card">
-          <h3>{{ u.unit_number }}</h3>
-          <p><strong>Size:</strong> {{ u.unit_size or 'N/A' }}</p>
-          <p><strong>Type:</strong> {{ u.ownership_type }}</p>
-          <p><strong>Tenant:</strong> {{ u.tenant_name or 'N/A' }}</p>
+          <div class="unit-header">
+            <h3>{{ u.unit_number }}</h3>
+            {% if u.is_special %}
+              <span class="tag">
+                <i class="fas fa-star"></i> Special
+              </span>
+            {% endif %}
+          </div>
+          <div class="unit-details">
+            <p><strong>Size:</strong> {{ u.unit_size or 'N/A' }}</p>
+            <p><strong>Type:</strong> {{ u.ownership_type }}</p>
+            <p><strong>Tenant:</strong> {{ u.tenant_name or 'N/A' }}</p>
 
-          {# 只有在“非 sold 且 有 lease”时，才显示租金和结束日 #}
-          {% if u.ownership_type != 'sold' and u.has_lease %}
-            <p><strong>Rent:</strong> ${{ "%.2f"|format(u.monthly_rent or 0) }}</p>
-            <p><strong>End Date:</strong> {{ u.end_date or 'N/A' }}</p>
-          {% endif %}
-
-          {% if u.is_special %}
-            <span class="tag">🌟 Special</span>
-          {% endif %}
+            {% if u.ownership_type != 'sold' and u.has_lease %}
+              <p><strong>Rent:</strong> <span class="rent-amount">${{ "%.2f"|format(u.monthly_rent or 0) }}</span></p>
+              <p><strong>End Date:</strong> {{ u.end_date or 'N/A' }}</p>
+            {% endif %}
+          </div>
         </div>
       {% else %}
-        <p>No units found.</p>
+        <div class="no-data">
+          <i class="fas fa-search"></i>
+          <p>No units found.</p>
+        </div>
       {% endfor %}
     </div>
 
