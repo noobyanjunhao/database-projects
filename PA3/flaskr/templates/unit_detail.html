@@ -26,15 +26,19 @@
         <div class="card-header">
           <h2>Unit Information</h2>
         </div>
-        <div class="card-content">
+        <div class="balance-circle">
+            <div class="balance-amount">${{ "%.2f"|format(balance) }}</div>
+            <div class="balance-label">current balance</div>
+        </div>
+        <div class="card-content-left">
           <p><strong>Tenant Name:</strong> {{ lease.full_name }}</p>
           <p><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</p>
           <p><strong>End Date:</strong> {{ lease.end_date or "N/A" }}</p>
-          <p><strong>Current Balance:</strong> ${{ "%.2f"|format(balance) }}</p>
-          <a class="btn" href="#" onclick="openModal()">
-            See Full Lease
-            <i class="fas fa-chevron-right"></i>
-          </a>
+        </div>
+        <div class="btn-row-bottom">
+        <a class="btn" href="#" onclick="openModal()">
+            See Full Lease <i class="fas fa-chevron-right"></i>
+        </a>
         </div>
       </div>
 
@@ -49,7 +53,7 @@
             </button>
             <div class="section">
               <h3>Recent Bills</h3>
-              <ul class="history-list">
+              <ul class="history-list limited">
                 {% for b in bills %}
                   <li>
                     <a href="{{ url_for('bill_detail', bill_id=b['id']) }}" class="history-item">
@@ -78,7 +82,7 @@
             </button>
             <div class="section">
               <h3>Recent Payments</h3>
-              <ul class="history-list">
+              <ul class="history-list limited">
                 {% for p in payments %}
                   <li>
                     <a href="{{ url_for('payment_detail', payment_id=p['id']) }}" class="history-item">
@@ -299,7 +303,7 @@
       </div>
 
       <div id="bill-preview-section" style="display: none;">
-        <h4>Confirm Bill Preview</h4>
+        <h4 class="confirm-bill-preview">Confirm Bill Preview</h4>
         <div class="preview-container">
           <div class="preview-row">
             <strong>Unit:</strong> <span>{{ lease.unit_number }}</span>
@@ -331,7 +335,7 @@
           <button class="btn" onclick="submitBill()">
         Confirm & Create Bill
           </button>
-          <button class="btn-small" onclick="backToEdit()">
+          <button class="btn" onclick="backToEdit()">
         Back
           </button>
         </div>

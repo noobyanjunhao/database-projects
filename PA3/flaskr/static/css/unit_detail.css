@@ -89,6 +89,8 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
   height: 699px;
   width:400px;
+  display: flex;
+  flex-direction: column;
 }
 
 .panel-card {
@@ -99,6 +101,9 @@ body {
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.05);
   height: fit-content;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 
@@ -143,8 +148,10 @@ body {
 .info-card .card-content p {
   margin-bottom: 1rem;
   color: #ddd;
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.5;
+
 }
 
 .info-card .card-content p strong {
@@ -152,6 +159,30 @@ body {
   font-weight: 600;
   margin-right: 0.5rem;
 }
+
+
+.card-content-left {
+  padding: 1.5rem;
+  margin-left:60px;
+  margin-top: 40px;
+}
+
+.card-content-left p {
+  margin-bottom: 1rem;
+  color: #ddd;
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.5;
+
+}
+
+.card-content-left p strong {
+  color: #3498db;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+
 
 .history-panel {
   display: flex;
@@ -270,6 +301,7 @@ body {
   max-height: 400px;
   overflow-y: auto;
   padding-right: 0.5rem;
+  padding-left: 1.5rem;
 }
 
 .history-list.full::-webkit-scrollbar {
@@ -286,6 +318,27 @@ body {
   border-radius: 10px;
 }
 
+.history-list.limited {
+  max-height: 140px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.history-list.limited::-webkit-scrollbar {
+  width: 6px;
+}
+
+.history-list.limited::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.history-list.limited::-webkit-scrollbar-thumb {
+  background: #3498db;
+  border-radius: 10px;
+}
+
+
 .empty-list {
   color: #999;
   padding: 1rem 0;
@@ -294,6 +347,12 @@ body {
 }
 
 /* Modal Styles */
+
+#bill-preview-section{
+  margin-top:20px;
+  margin-bottom: 20px;
+}
+
 .modal {
   display: none;
   position: fixed;
@@ -412,6 +471,7 @@ form {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+  padding-right: 25px;
 }
 
 /* Charge Entries */
@@ -564,4 +624,89 @@ form {
   .filter-section select {
     width: 100%;
   }
+}
+
+
+#billYearSelect, #paymentYearSelect {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 35, 45, 0.7);
+  color: #fff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+}
+
+#billYearSelect:focus, #paymentYearSelect:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+#billYearSelect:hover, #paymentYearSelect:hover {
+  border-color: #3498db;
+  background-color: rgba(40, 45, 55, 0.8);
+}
+
+#billYearSelect option, #paymentYearSelect option {
+  background-color: #1a1f2b;
+  color: #fff;
+  padding: 10px;
+}
+
+.confirm-bill-preview {
+  padding-left:24px;
+}
+
+.balance-circle {
+  width: 200px;
+  height: 200px;
+  border: 3px solid #3498db;
+  border-radius: 50%;
+  margin: 0 auto 1rem auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(30, 35, 45, 0.6);
+  box-shadow: 0 0 20px rgba(52, 152, 219, 0.3);
+  margin-top: 50px;
+}
+
+.balance-amount {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.balance-label {
+  font-size: 0.95rem;
+  color: #bbb;
+  margin-top: 0.4rem;
+  letter-spacing: 1px;
+  text-transform: lowercase;
+}
+
+.last-updated {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+
+
+.btn-row-bottom {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-bottom: 1.5rem;
+  margin-right:20px;
 }
