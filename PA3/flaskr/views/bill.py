@@ -95,7 +95,7 @@ def bill_detail(bill_id):
     db = get_db()
     bill = db.execute("""
         SELECT B.sent_at, B.billing_month, B.rent_amount, B.other_charges, B.balance_used, B.total_amount,
-            T.full_name, A.unit_number
+            T.full_name, A.unit_number, A.id AS apartment_id
         FROM Bill B
         JOIN Lease L ON B.lease_id = L.id
         JOIN Tenant T ON L.tenant_id = T.id
@@ -114,7 +114,7 @@ def bill_detail(bill_id):
         except:
             charges = {}
 
-    return render_template("bill_detail.html", bill=bill, charges=charges)
+    return render_template("bill_detail.html", bill=bill, charges=charges, apartment_id=bill['apartment_id'])
 
 
 @bill_bp.route('/unit/<int:unit_id>/create-payment', methods=['POST'])
@@ -160,5 +160,5 @@ def payment_detail(payment_id):
     if not payment:
         return "Payment not found", 404
 
-    return render_template("payment_detail.html", payment=payment)
+    return render_template("payment_detail.html", payment=payment, apartment_id=payment['apartment_id'])
 

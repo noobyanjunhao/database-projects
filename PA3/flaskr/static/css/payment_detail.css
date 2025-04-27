@@ -153,3 +153,30 @@ li strong {
     padding: 1.5rem;
   }
 }
+
+
+.back-button-container {
+  margin: 1rem;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(52, 152, 219, 0.2);
+  color: #3498db;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-left: -20px;
+}
+
+.back-button i {
+  margin-right: 0.5rem;
+}
+
+.back-button:hover {
+  background: rgba(52, 152, 219, 0.4);
+  color: #64b5f6;
+}

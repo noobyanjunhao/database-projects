@@ -10,6 +10,12 @@
 <body>
 
   <div class="container">
+    <div class="back-button-container">
+    <a href="{{ url_for('unit.unit_detail', unit_id=apartment_id) }}" class="back-button">
+      <i class="fas fa-arrow-left"></i> Back to Unit Detail
+    </a>
+  </div>
+
     <h1>270 Holding, LLC</h1>
     <p><strong>Payment From:</strong> {{ payment.full_name }}</p>
     <p><strong>Unit:</strong> {{ payment.unit_number }}</p>
@@ -23,13 +29,6 @@
         <li><strong>Check Number:</strong> {{ payment.check_number or "N/A" }}</li>
         <li><strong>Amount:</strong> ${{ "%.2f"|format(payment.amount) }}</li>
       </ul>
-    </div>
-
-    <div class="footer">
-      <a href="{{ url_for('unit.unit_detail', unit_id=payment.apartment_id) }}">
-        <i class="fas fa-chevron-left" style="margin-right: 8px;"></i>
-        Back to Unit Detail
-      </a>
     </div>
   </div>
 

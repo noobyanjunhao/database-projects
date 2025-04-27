@@ -15,12 +15,13 @@
   </nav>
 
   <main class="unit-page">
+    <div class="back-button-container">
+    <a href="{{ url_for('bill.bill_payment_dashboard') }}" class="back-button">
+      <i class="fas fa-arrow-left"></i> Back to Bill & Payment
+    </a>
+  </div>
+
     <div id="toast" class="toast" style="display:none;">Bill successfully created and email sent!</div>
-    
-    <div class="page-header">
-      <h1>Unit {{ lease.unit_number }}</h1>
-    </div>
-    
     <div class="unit-layout">
       <div class="info-card">
         <div class="card-header">
@@ -31,6 +32,8 @@
             <div class="balance-label">current balance</div>
         </div>
         <div class="card-content-left">
+       
+         <p><strong> Unit:</strong> {{ lease.unit_number }}</p>
           <p><strong>Tenant Name:</strong> {{ lease.full_name }}</p>
           <p><strong>Monthly Rent:</strong> ${{ "%.2f"|format(lease.monthly_rent) }}</p>
           <p><strong>End Date:</strong> {{ lease.end_date or "N/A" }}</p>

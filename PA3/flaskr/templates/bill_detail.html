@@ -8,7 +8,13 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+
   <div class="invoice-container">
+    <div class="back-button-container">
+    <a href="{{ url_for('unit.unit_detail', unit_id=apartment_id) }}" class="back-button">
+      <i class="fas fa-arrow-left"></i> Back to Unit Detail
+    </a>
+  </div>
     <div class="header">
       <div>
         <h1 class="company">270 Holding, LLC</h1>
