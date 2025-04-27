@@ -1,8 +1,10 @@
 import sqlite3
 import pytest
+from flask import Flask
 from flaskr.db import get_db, close_db
+from typing import Any
 
-def test_get_db_returns_same_connection(app):
+def test_get_db_returns_same_connection(app: Flask) -> None:
     with app.app_context():
         c1 = get_db()
         c2 = get_db()
@@ -10,7 +12,7 @@ def test_get_db_returns_same_connection(app):
         assert isinstance(c1, sqlite3.Connection)
         assert c1.row_factory == sqlite3.Row
 
-def test_close_db_removes_and_closes(app):
+def test_close_db_removes_and_closes(app: Flask) -> None:
     with app.app_context():
         conn = get_db()
         close_db()
