@@ -9,7 +9,7 @@
 </head>
 <body>
   <nav class="navbar">
-    <div class="navbar-left">Rent Management System</div>
+    <a class="navbar-left" href="{{ url_for('main.dashboard') }}">Rent Management System</a>
     <div class="navbar-right">Property Address: 270 Holding, LLC</div>
   </nav>
 
@@ -21,7 +21,7 @@
       <div class="card-content">
         <h2>Bill & Payment</h2>
         <p>Intro of function goes here.</p>
-        <a class="card-btn" href="{{ url_for('bill_payment_dashboard') }}">
+        <a class="card-btn" href="{{ url_for('bill.bill_payment_dashboard') }}">
           Enter
           <i class="fas fa-chevron-right"></i>
         </a>
@@ -35,7 +35,7 @@
       <div class="card-content">
         <h2>Unit Information</h2>
         <p>Intro of function goes here.</p>
-        <a class="card-btn" href="{{ url_for('units_overview') }}">
+        <a class="card-btn" href="{{ url_for('unit.units_overview') }}">
           Enter
           <i class="fas fa-chevron-right"></i>
         </a>

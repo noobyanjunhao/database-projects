@@ -11,7 +11,7 @@
 
   <!-- Navbar -->
   <nav class="navbar">
-    <div class="navbar-left">Rent Management System</div>
+    <a class="navbar-left" href="{{ url_for('main.dashboard') }}">Rent Management System</a>
     <div class="navbar-right">Property Address: 270 Holding, LLC</div>
   </nav>
 
@@ -19,7 +19,7 @@
     <div class="page-header">
       <h1>Unit Information Overview</h1>
       <div class="export-button-container">
-        <a href="{{ url_for('export_units') }}" class="btn export-btn">
+        <a href="{{ url_for('export.export_units') }}" class="btn export-btn">
           <i class="fas fa-file-export"></i> Export to Excel
         </a>
       </div>

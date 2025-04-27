@@ -11,11 +11,12 @@
 
   <!-- Navbar -->
   <nav class="navbar">
-    <div class="navbar-left">Rent Management System</div>
+  <a class="navbar-left" href="{{ url_for('main.dashboard') }}">Rent Management System</a>
     <div class="navbar-right">Property Address: 270 Holding, LLC</div>
   </nav>
 
   <main class="bp-container">
+  
     <div class="page-header">
       <h1>Bill & Payment Dashboard</h1>
     </div>
@@ -65,7 +66,7 @@
           {% for row in data %}
             <tr>
               <td>
-                <a href="{{ url_for('unit_detail', unit_id=row['apartment_id']) }}" class="unit-link">
+                <a href="{{ url_for('unit.unit_detail', unit_id=row['apartment_id']) }}" class="unit-link">
                   {{ row['unit_number'] }}
                 </a>
               </td>
