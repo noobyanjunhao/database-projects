@@ -1,41 +1,20 @@
-# tests/test_export.py
-
-import os
-import sys
+import json
 import pytest
-from flask import Flask
-
-# Make sure we can import flaskr
-sys.path.insert(0, os.getcwd())
-
-import flaskr.views.export as export_module
+from flaskr.views import export as export_module
 
 class DummyCursor:
     def __init__(self, rows):
         self._rows = rows
-
     def fetchall(self):
         return self._rows
 
 class DummyDB:
-    def __init__(self, rows=None):
-        self.rows = rows or []
-
+    def __init__(self, rows):
+        self.rows = rows
     def execute(self, query):
         return DummyCursor(self.rows)
 
-@pytest.fixture
-def app():
-    app = Flask(__name__)
-    app.register_blueprint(export_module.export_bp)
-    return app
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
 def test_export_units_excel_response(monkeypatch, client):
-    # Two example rows: one rented, one sold
     rows = [
         {
             "unit_number": "101",
@@ -56,19 +35,13 @@ def test_export_units_excel_response(monkeypatch, client):
             "end_date": None
         },
     ]
-    dummy_db = DummyDB(rows=rows)
-    # Patch get_db in the export module
+    dummy_db = DummyDB(rows)
     monkeypatch.setattr(export_module, 'get_db', lambda: dummy_db)
 
     resp = client.get('/units/export')
     assert resp.status_code == 200
-
-    # Verify headers
     assert resp.headers["Content-Type"] == \
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    cd = resp.headers.get("Content-Disposition", "")
-    assert "attachment" in cd
-    assert "units_overview.xlsx" in cd
-
-    # Excel files are ZIP under the hood: should start with PK
+    cd = resp.headers["Content-Disposition"]
+    assert "attachment" in cd and "units_overview.xlsx" in cd
     assert resp.data[:2] == b'PK'

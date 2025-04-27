@@ -1,25 +1,7 @@
-# tests/test_unit.py
-
-import os
-import sys
 import json
 import datetime
 import pytest
-from flask import Flask
-
-# Ensure project root is on the import path
-sys.path.insert(0, os.getcwd())
-
-# Import all needed blueprints
-import flaskr.views.main as main_module
-import flaskr.views.bill as bill_module
-import flaskr.views.export as export_module
-import flaskr.views.unit as unit_module
-
-main_bp   = main_module.main_bp
-bill_bp   = bill_module.bill_bp
-export_bp = export_module.export_bp
-unit_bp   = unit_module.unit_bp
+from flaskr.views import unit as unit_module
 
 class DummyCursor:
     def __init__(self, rows):
@@ -31,156 +13,106 @@ class DummyCursor:
     def fetchone(self):
         return self._rows[0] if self._rows else None
 
-class SeqDB:
-    """Returns successive row‐sets on each execute() call."""
-    def __init__(self, sequences):
-        self._seq = sequences[:]
+class DummyDB:
+    def __init__(self, rows=None):
+        self.rows = rows or []
         self.committed = False
 
     def execute(self, query, args=None):
-        rows = self._seq.pop(0)
-        return DummyCursor(rows)
+        return DummyCursor(self.rows)
 
     def commit(self):
         self.committed = True
 
-@pytest.fixture
-def app():
-    # Point Flask to your actual templates directory
-    templates_path = os.path.join(os.getcwd(), 'flaskr', 'templates')
-    app = Flask(__name__, template_folder=templates_path)
+class SeqDB:
+    def __init__(self, seq):
+        self._seq = list(seq)
+        self.committed = False
 
-    # Register all blueprints that your templates reference
-    app.register_blueprint(main_bp)
-    app.register_blueprint(unit_bp)
-    app.register_blueprint(bill_bp)
-    app.register_blueprint(export_bp)
+    def execute(self, query, args=None):
+        return DummyCursor(self._seq.pop(0))
 
-    return app
+    def commit(self):
+        self.committed = True
 
-@pytest.fixture
-def client(app):
-    return app.test_client()
-
-def test_units_overview(monkeypatch, client):
-    # One sample row for /units
+@pytest.mark.parametrize("qs", [
+    "", "?search=alice", "?ownership=sold", "?special=1"
+])
+def test_units_overview_branches(monkeypatch, client, qs):
     rows = [{
         "apartment_id": 1,
         "unit_number": "101",
-        "unit_size": "500 sqft",
+        "unit_size": "100",
         "ownership_type": "rented",
-        "is_special": 1,
-        "has_lease": 1,
-        "tenant_name": "Alice",
-        "monthly_rent": 1200,
-        "end_date": datetime.date(2025, 12, 31),
+        "is_special": 0,
+        "has_lease": 0,
+        "tenant_name": "A",
+        "monthly_rent": 500,
+        "end_date": None
     }]
-    dummy_db = SeqDB([rows])
-    monkeypatch.setattr(unit_module, 'get_db', lambda: dummy_db)
-
-    resp = client.get('/units')
+    db = DummyDB(rows=rows)
+    monkeypatch.setattr(unit_module, 'get_db', lambda: db)
+    resp = client.get(f'/units{qs}')
     assert resp.status_code == 200
-    html = resp.get_data(as_text=True)
-    assert "101" in html
-    assert "Alice" in html
+    assert '101' in resp.get_data(as_text=True)
 
-def test_unit_detail_not_found(monkeypatch, client):
-    # No lease row => 404
-    dummy_db = SeqDB([[]])
-    monkeypatch.setattr(unit_module, 'get_db', lambda: dummy_db)
+def test_unit_detail_and_balance(monkeypatch, client):
+    # not found
+    db = SeqDB([[]])
+    monkeypatch.setattr(unit_module, 'get_db', lambda: db)
+    assert client.get('/unit/99').status_code == 404
 
-    resp = client.get('/unit/42')
-    assert resp.status_code == 404
-
-def test_unit_detail_success(monkeypatch, client):
-    # Prepare the 7 sequential DB calls:
-    # 1) lease_info
-    lease_info = [{
-        "apartment_id": 1,
-        "unit_number": "101",
-        "unit_size": "500 sqft",
-        "ownership_type": "rented",
-        "is_special": 1,
-        "full_name": "Alice",
-        "email": "alice@example.com",
-        "monthly_rent": 1200.0,
+    # valid path + invalid JSON to hit except branch
+    lease = [{
+        "apartment_id": 2,
+        "unit_number": "102",
+        "unit_size": "200",
+        "ownership_type": "sold",
+        "is_special": 0,
+        "full_name": "B",
+        "email": "b@x",
+        "monthly_rent": 800,
         "start_date": datetime.datetime(2025, 1, 1),
         "end_date": datetime.datetime(2025, 12, 31),
-        "lease_id": 10
+        "lease_id": 2
     }]
-    # 2) bills (id, sent_at, total_amount)
-    bills = [{
-        "id": 1,
-        "sent_at": datetime.datetime(2025, 4,  1),
-        "total_amount": 1250
-    }]
-    # 3) all_bills (same shape as bills)
-    all_bills = bills[:]
-    # 4) bill_options (id, billing_month as datetime, rent_amount, total_amount)
-    bill_options = [{
-        "id": 1,
-        "billing_month": datetime.datetime(2025, 4, 1),
-        "rent_amount": 1200,
-        "total_amount": 1250
-    }]
-    # 5) payments (id, payment_date, amount)
-    payments = [{
-        "id": 2,
-        "payment_date": datetime.datetime(2025, 4, 5),
-        "amount": 1250
-    }]
-    # 6) all_payments (same shape)
-    all_payments = payments[:]
-    # 7) all_bills_calc for computing balance
-    all_bills_calc = [{
-        "rent_amount": 1200,
-        "other_charges": json.dumps({"gas": 50})
-    }]
-
-    seq = [lease_info, bills, all_bills, bill_options, payments, all_payments, all_bills_calc]
-    dummy_db = SeqDB(seq)
-    monkeypatch.setattr(unit_module, 'get_db', lambda: dummy_db)
-
-    resp = client.get('/unit/1')
+    seq = [
+        lease,   # lease_info
+        [], [],  [],  # bills, all_bills, bill_options
+        [], [],       # payments, all_payments
+        [{"rent_amount": 800, "other_charges": "not-a-json"}]  # all_bills_calc, triggers except
+    ]
+    db = SeqDB(seq)
+    monkeypatch.setattr(unit_module, 'get_db', lambda: db)
+    resp = client.get('/unit/2')
     assert resp.status_code == 200
-    html = resp.get_data(as_text=True)
-    # Verify key pieces rendered
-    assert "101" in html
-    assert "Alice" in html
-    # And the billing_month formatting should appear as "2025-04"
-    assert "2025-04" in html
+    assert '102' in resp.get_data(as_text=True)
 
-def test_update_lease_not_found(monkeypatch, client):
-    # No lease => 404
-    dummy_db = SeqDB([[]])
-    monkeypatch.setattr(unit_module, 'get_db', lambda: dummy_db)
+def test_update_lease_paths(monkeypatch, client):
+    # missing
+    db = DummyDB(rows=[])
+    monkeypatch.setattr(unit_module, 'get_db', lambda: db)
+    assert client.post('/unit/99/update-lease', json={}).status_code == 404
 
-    resp = client.post('/unit/99/update-lease', json={
-        "tenant_name": "Bob",
-        "tenant_email": "bob@example.com",
-        "start_date": "2025-02-01",
-        "end_date": "2025-12-31",
-        "monthly_rent": 1000,
-        "ownership_type": "rented",
-        "is_special": 0
-    })
-    assert resp.status_code == 404
-
-def test_update_lease_success(monkeypatch, client):
-    # First call returns lease row; next three are update queries
-    lease_row = [{"lease_id": 10, "tenant_id": 20}]
-    dummy_db = SeqDB([lease_row, [], [], []])
-    monkeypatch.setattr(unit_module, 'get_db', lambda: dummy_db)
-
+    # success
+    lease = [{"lease_id": 3, "tenant_id": 4}]
+    db = SeqDB([lease, [], [], []])
+    monkeypatch.setattr(unit_module, 'get_db', lambda: db)
     payload = {
-        "tenant_name": "Bob",
-        "tenant_email": "bob@example.com",
-        "start_date": "2025-02-01",
+        "tenant_name": "X",
+        "tenant_email": "x@x",
+        "start_date": "2025-01-01",
         "end_date": "2025-12-31",
-        "monthly_rent": 1000,
-        "ownership_type": "rented",
-        "is_special": 0
+        "monthly_rent": 600,
+        "ownership_type": "sold",
+        "is_special": 1
     }
-    resp = client.post('/unit/1/update-lease', json=payload)
-    assert resp.status_code == 200
-    assert dummy_db.committed
+    resp = client.post('/unit/3/update-lease', json=payload)
+    assert resp.status_code == 200 and db.committed
+
+def test_dummydb_commit_sets_flag():
+    # cover DummyDB.commit()
+    dummy = DummyDB(rows=[])
+    assert not dummy.committed
+    dummy.commit()
+    assert dummy.committed

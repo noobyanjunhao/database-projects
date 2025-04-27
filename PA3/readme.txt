@@ -17,3 +17,15 @@ pip install -r requirements.txt
 
 step 6:
 flask --app flaskr run
+
+TEST
+
+install test:
+pip install pytest coverage
+
+run test:
+coverage run -m pytest
+
+see coverage report:
+coverage report -m
+

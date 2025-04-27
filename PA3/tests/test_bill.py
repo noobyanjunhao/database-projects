@@ -1,4 +1,4 @@
-# tests/test_bills.py
+# tests/test_bill.py
 
 import os
 import sys
@@ -10,7 +10,7 @@ from flask import Flask
 # Ensure project root is on the import path so we can import flaskr
 sys.path.insert(0, os.getcwd())
 
-# Import your blueprints
+# Import blueprints
 import flaskr.views.main as main_module
 import flaskr.views.unit as unit_module
 import flaskr.views.bill as bill_module
@@ -32,8 +32,8 @@ class DummyCursor:
 class DummyDB:
     def __init__(self, rows=None, fail=False):
         self.rows = rows or []
-        self.committed = False
         self.fail = fail
+        self.committed = False
 
     def execute(self, query, args=None):
         if self.fail:
@@ -45,152 +45,156 @@ class DummyDB:
 
 @pytest.fixture
 def app():
-    # Point Flask at the correct templates folder
+    # Point Flask at the real templates folder so render_template() works
     templates_path = os.path.join(os.getcwd(), 'flaskr', 'templates')
     app = Flask(__name__, template_folder=templates_path)
-
-    # Register all blueprints needed for url_for
+    # Register blueprints for URL building in templates
     app.register_blueprint(main_bp)
     app.register_blueprint(unit_bp)
     app.register_blueprint(bill_bp)
-
     return app
 
 @pytest.fixture
 def client(app):
     return app.test_client()
 
-def test_bill_payment_dashboard_filters(monkeypatch, client):
+@pytest.mark.parametrize("qs", [
+    "",
+    "?search=alice",
+    "?ownership=sold",
+    "?special=1",
+])
+def test_bill_payment_dashboard_filters(monkeypatch, client, qs):
+    # Our DummyDB returns both rows every time;
+    # post-filtering always drops the 'sold' row (101) and keeps the other (102).
     rows = [
-        {'apartment_id': 1, 'unit_number': '101', 'ownership_type': 'rented', 'is_special': 0, 'full_name': 'Alice'},
-        {'apartment_id': 2, 'unit_number': '102', 'ownership_type': 'sold',   'is_special': 0, 'full_name': 'Bob'},
-        {'apartment_id': 3, 'unit_number': '103', 'ownership_type': 'rented', 'is_special': 1, 'full_name': None},
+        {'apartment_id': 1, 'unit_number': '101', 'ownership_type': 'sold',            'is_special': 0, 'full_name': 'Alice'},
+        {'apartment_id': 2, 'unit_number': '102', 'ownership_type': 'rent_controlled', 'is_special': 1, 'full_name': 'Bob'},
     ]
-    dummy_db = DummyDB(rows=rows)
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
+    dummy = DummyDB(rows=rows)
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
 
-    resp = client.get('/bill-payment')
+    resp = client.get(f'/bill-payment{qs}')
     assert resp.status_code == 200
     text = resp.get_data(as_text=True)
-    # Only the first (valid) row should appear
-    assert '101' in text and 'Alice' in text
-    assert '102' not in text
-    assert '103' not in text
 
-def test_create_bill_not_found(monkeypatch, client):
-    dummy_db = DummyDB(rows=[])
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
+    # '101' should always be filtered out (sold), and '102' always shown
+    assert '102' in text
+    assert '101' not in text
 
-    resp = client.post('/unit/5/create-bill', json={
-        "billing_month": "2025-04",
-        "rent_amount": 1000,
+def test_create_and_detail_and_payment_paths(monkeypatch, client):
+    # create-bill not found
+    dummy = DummyDB(rows=[])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r1 = client.post('/unit/99/create-bill', json={
+        "billing_month": "2025-05",
+        "rent_amount":    1000,
         "other_charges": {},
-        "balance_used": 0,
-        "total_amount": 1000
+        "balance_used":   0,
+        "total_amount":   1000
     })
-    assert resp.status_code == 404
+    assert r1.status_code == 404
 
-def test_create_bill_success(monkeypatch, client):
-    lease_row = {'lease_id': 10, 'email': 'test@example.com', 'full_name': 'Test User'}
-    dummy_db = DummyDB(rows=[lease_row])
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
-
-    resp = client.post('/unit/1/create-bill', json={
-        "billing_month": "2025-04",
-        "rent_amount": 1200.50,
-        "other_charges": {"water": 30},
-        "balance_used": 100,
-        "total_amount": 1130.50
+    # create-bill success
+    lease = {'lease_id': 10, 'email': 'a@b.com', 'full_name': 'Abc'}
+    dummy = DummyDB(rows=[lease])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r2 = client.post('/unit/1/create-bill', json={
+        "billing_month": "2025-06",
+        "rent_amount":    1500,
+        "other_charges":  {"x": 50},
+        "balance_used":   100,
+        "total_amount":   1450
     })
-    assert resp.status_code == 200
-    assert dummy_db.committed
+    assert r2.status_code == 200
+    assert dummy.committed
 
-def test_bill_detail_not_found(monkeypatch, client):
-    dummy_db = DummyDB(rows=[])
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
+    # bill-detail not found
+    dummy = DummyDB(rows=[])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r3 = client.get('/bill/999')
+    assert r3.status_code == 404
 
-    resp = client.get('/bill/999')
-    assert resp.status_code == 404
-
-def test_bill_detail_success(monkeypatch, client):
-    # Use a datetime object so .strftime works in template
+    # bill-detail success (valid JSON)
     bill_row = {
-        "sent_at": datetime.datetime(2025, 4, 10),
-        "billing_month": "2025-04",
-        "rent_amount": 1200,
-        "other_charges": json.dumps({"gas": 50}),
-        "balance_used": 0,
-        "total_amount": 1250,
-        "full_name": "Alice",
-        "unit_number": "201",
-        "apartment_id": 1
+        "sent_at":       datetime.datetime(2025, 6, 1),
+        "billing_month": "2025-06",
+        "rent_amount":   1500,
+        "other_charges": json.dumps({"water": 30}),
+        "balance_used":  0,
+        "total_amount":  1530,
+        "full_name":     "Zed",
+        "unit_number":   "U8",
+        "apartment_id":  8
     }
-    dummy_db = DummyDB(rows=[bill_row])
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
+    dummy = DummyDB(rows=[bill_row])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r4 = client.get('/bill/8')
+    assert r4.status_code == 200
+    assert 'U8' in r4.get_data(as_text=True)
 
-    resp = client.get('/bill/1')
-    assert resp.status_code == 200
-    text = resp.get_data(as_text=True)
-    assert '201' in text and 'Alice' in text
+    # bill-detail success (invalid JSON)
+    bad_row = bill_row.copy()
+    bad_row["other_charges"] = "not-json"
+    bad_row["unit_number"]   = "U9"
+    bad_row["apartment_id"]  = 9
+    dummy = DummyDB(rows=[bad_row])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r5 = client.get('/bill/9')
+    assert r5.status_code == 200
+    assert 'U9' in r5.get_data(as_text=True)
 
-def test_create_payment_missing_fields(monkeypatch, client):
-    dummy_db = DummyDB()
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
+    # create-payment missing fields
+    dummy = DummyDB()
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r6 = client.post('/unit/1/create-payment', json={})
+    assert r6.status_code == 400
 
-    resp = client.post('/unit/1/create-payment', json={})
-    assert resp.status_code == 400
-
-def test_create_payment_db_error(monkeypatch, client):
-    dummy_db = DummyDB(fail=True)
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
-
-    resp = client.post('/unit/1/create-payment', json={
-        'bill_id': 1,
-        'amount': 100,
-        'payment_date': '2025-04-15',
-        'check_number': 'A123',
-        'remitter_name': 'Alice'
+    # create-payment DB error
+    dummy = DummyDB(fail=True)
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r7 = client.post('/unit/1/create-payment', json={
+        "bill_id":       1,
+        "amount":        100,
+        "payment_date":  "2025-07-10",
+        "check_number":  "CHK",
+        "remitter_name": "Me"
     })
-    assert resp.status_code == 500
+    assert r7.status_code == 500
 
-def test_create_payment_success(monkeypatch, client):
-    dummy_db = DummyDB()
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
-
-    resp = client.post('/unit/1/create-payment', json={
-        'bill_id': 2,
-        'amount': 200,
-        'payment_date': '2025-04-20',
-        'check_number': 'B456',
-        'remitter_name': 'Bob'
+    # create-payment success
+    dummy = DummyDB()
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r8 = client.post('/unit/1/create-payment', json={
+        "bill_id":       2,
+        "amount":        200,
+        "payment_date":  "2025-07-15",
+        "check_number":  "XYZ",
+        "remitter_name": "You"
     })
-    assert resp.status_code == 200
-    assert dummy_db.committed
+    assert r8.status_code == 200
+    assert dummy.committed
 
-def test_payment_detail_not_found(monkeypatch, client):
-    dummy_db = DummyDB(rows=[])
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
+    # payment-detail not found
+    dummy = DummyDB(rows=[])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r9 = client.get('/payment/1234')
+    assert r9.status_code == 404
 
-    resp = client.get('/payment/123')
-    assert resp.status_code == 404
-
-def test_payment_detail_success(monkeypatch, client):
+    # payment-detail success
     payment_row = {
-        "id": 5,
-        "bill_id": 2,
-        "amount": 200,
-        # datetime for compatibility with .strftime
-        "payment_date": datetime.datetime(2025, 4, 20),
-        "check_number": "C789",
-        "remitter_name": "Carol",
-        "unit_number": "301",
-        "apartment_id": 3,
-        "full_name": "Carol"
+        "id":             3,
+        "bill_id":        2,
+        "amount":         250,
+        "payment_date":   datetime.datetime(2025, 7, 20),
+        "check_number":   "PMT",
+        "remitter_name":  "Bob",
+        "unit_number":    "U10",
+        "apartment_id":   10,
+        "full_name":      "Bob"
     }
-    dummy_db = DummyDB(rows=[payment_row])
-    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy_db)
-
-    resp = client.get('/payment/5')
-    assert resp.status_code == 200
-    text = resp.get_data(as_text=True)
-    assert '301' in text and 'Carol' in text
+    dummy = DummyDB(rows=[payment_row])
+    monkeypatch.setattr(bill_module, 'get_db', lambda: dummy)
+    r10 = client.get('/payment/3')
+    assert r10.status_code == 200
+    assert 'U10' in r10.get_data(as_text=True)

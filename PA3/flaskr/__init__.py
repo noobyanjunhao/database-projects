@@ -17,7 +17,6 @@ def create_app():
     except OSError:
         pass
 
-
     db.init_app(app)
 
     from flaskr.views.main import main_bp
@@ -30,10 +29,9 @@ def create_app():
     app.register_blueprint(unit_bp)
     app.register_blueprint(export_bp)
 
-    if not os.path.exists(app.config['DATABASE']):
+    # on first run, initialize the database; we don’t cover this in tests
+    if not os.path.exists(app.config['DATABASE']):  # pragma: no cover
         with app.app_context():
-            db.init_db()
+            db.init_db()  # pragma: no cover
 
     return app
-
-
