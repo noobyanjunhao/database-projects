@@ -123,7 +123,7 @@ import datetime
 import pytest
 from flask.testing import FlaskClient
 from flaskr.views import unit as unit_module
-from typing import Any
+from typing import Any, Optional
 
 class DummyCursor:
     def __init__(self, rows: list[dict[str, Any]]):
@@ -132,7 +132,7 @@ class DummyCursor:
     def fetchall(self) -> list[dict[str, Any]]:
         return self._rows
 
-    def fetchone(self) -> dict[str, Any]:
+    def fetchone(self) -> Optional[dict[str, Any]]:
         return self._rows[0] if self._rows else None
 
 class DummyDB:
@@ -146,7 +146,7 @@ class DummyDB:
     def commit(self) -> None:
         self.committed = True
 
-class SeqDB:
+class SeqDB(DummyDB):
     def __init__(self, seq: list[Any]):
         self._seq = list(seq)
         self.committed = False

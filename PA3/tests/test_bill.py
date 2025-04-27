@@ -208,7 +208,7 @@ import datetime
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
-from typing import Any, Generator
+from typing import Any, Generator, Optional
 
 # Ensure project root is on the import path so we can import flaskr
 sys.path.insert(0, os.getcwd())
@@ -229,7 +229,7 @@ class DummyCursor:
     def fetchall(self) -> list[dict[str, Any]]:
         return self._rows
 
-    def fetchone(self) -> dict[str, Any]:
+    def fetchone(self) -> Optional[dict[str, Any]]:
         return self._rows[0] if self._rows else None
 
 class DummyDB:
