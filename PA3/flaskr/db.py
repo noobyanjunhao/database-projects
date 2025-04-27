@@ -46,6 +46,12 @@ def init_db_command() -> None:
     init_db()
     click.echo('Initialized the database.')
 
+# def init_app(app: Flask) -> None:
+#     app.teardown_appcontext(cast(Callable[[Optional[Exception]], None], close_db))
+#     app.cli.add_command(init_db_command)
+
 def init_app(app: Flask) -> None:
-    app.teardown_appcontext(cast(Callable[[Optional[Exception]], None], close_db))
+    def teardown(_: Optional[BaseException] = None) -> None:
+        close_db()
+    app.teardown_appcontext(teardown)
     app.cli.add_command(init_db_command)
