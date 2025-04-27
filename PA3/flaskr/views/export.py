@@ -15,7 +15,6 @@ def export_units():
         FROM Apartment A
         LEFT JOIN Lease L ON L.apartment_id = A.id
         LEFT JOIN Tenant T ON T.id = L.tenant_id
-        WHERE A.ownership_type != 'sold'
         ORDER BY A.unit_number
     """).fetchall()
 
