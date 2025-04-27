@@ -22,9 +22,9 @@ CREATE TABLE Lease (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   tenant_id INTEGER NOT NULL,
   apartment_id INTEGER NOT NULL,
-  start_date DATE NOT NULL,
+  start_date DATE,
   end_date DATE,
-  monthly_rent DECIMAL(10,2) NOT NULL,
+  monthly_rent DECIMAL(10,2),
   FOREIGN KEY (tenant_id) REFERENCES Tenant(id),
   FOREIGN KEY (apartment_id) REFERENCES Apartment(id)
 );
