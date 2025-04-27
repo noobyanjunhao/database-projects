@@ -29,3 +29,5 @@ coverage run -m pytest
 see coverage report:
 coverage report -m
 
+
+pip install mypy
