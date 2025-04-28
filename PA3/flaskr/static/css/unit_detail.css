@@ -189,7 +189,27 @@ body {
 }
 
 /* Button Styles */
-.btn, .btn-small {
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.5rem;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.btn-small {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -243,7 +263,7 @@ body {
 .btn-small {
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
   align-self: flex-start;
 }
 
@@ -317,7 +337,7 @@ body {
 }
 
 .history-list.limited {
-  max-height: 140px;
+  max-height: 100px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
