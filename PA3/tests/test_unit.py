@@ -15,13 +15,13 @@ class DummyCursor:
     def __init__(self, rows: list[dict[str, Any]]):
         self._rows = rows
 
-    def fetchall(self) -> list[dict[str, Any]]:
-        """Fetch all rows."""
-        return self._rows
-
     def fetchone(self) -> Optional[dict[str, Any]]:
         """Fetch the first row or None if no rows."""
         return self._rows[0] if self._rows else None
+
+    def fetchall(self) -> list[dict[str, Any]]:
+        """Fetch all rows."""
+        return self._rows
 
 
 class DummyDB:

@@ -1,29 +1,34 @@
-import json
+"""Test cases for unit export functionality."""
+
 from typing import Any
 
-import pytest
 from flask.testing import FlaskClient
 
-from flaskr.views import export as export_module
+from flaskr.views import export as export_module  # pylint: disable=import-error
 
 
-class DummyCursor:
+class DummyCursor: # pylint: disable=too-few-public-methods
+    """A dummy database cursor that returns preloaded rows."""
     def __init__(self, rows: list[dict[str, Any]]):
         self._rows = rows
 
     def fetchall(self) -> list[dict[str, Any]]:
+        """Return all dummy rows."""
         return self._rows
 
 
-class DummyDB:
+class DummyDB: # pylint: disable=too-few-public-methods
+    """A dummy database connection that simulates queries."""
     def __init__(self, rows: list[dict[str, Any]]):
         self.rows = rows
 
-    def execute(self, query: str) -> DummyCursor:
+    def execute(self, query: str) -> DummyCursor:  # pylint: disable=unused-argument
+        """Return dummy cursor regardless of the query."""
         return DummyCursor(self.rows)
 
 
 def test_export_units_excel_response(monkeypatch: Any, client: FlaskClient) -> None:
+    """Test that exporting units returns a valid Excel file."""
     rows = [
         {
             "unit_number": "101",
