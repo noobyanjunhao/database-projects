@@ -31,3 +31,10 @@ coverage report -m
 
 
 pip install mypy
+
+mypy flaskr
+
+mypy tests
+
+
+pip install pylint

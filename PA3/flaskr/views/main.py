@@ -1,25 +1,18 @@
-# from flask import Blueprint, render_template
-
-# main_bp = Blueprint('main', __name__)
-
-# @main_bp.route('/')
-# def index():
-#     return render_template('index.html')
-
-# @main_bp.route('/dashboard')
-# def dashboard():
-#     return render_template('dashboard.html')
-
-
-from flask import Blueprint, render_template
+"""Main site views."""
 from typing import Any
 
-main_bp = Blueprint('main', __name__)
+from flask import Blueprint, render_template
 
-@main_bp.route('/')
+main_bp = Blueprint("main", __name__)
+
+
+@main_bp.route("/")
 def index() -> Any:
-    return render_template('index.html')
+    """Render the homepage."""
+    return render_template("index.html")
 
-@main_bp.route('/dashboard')
+
+@main_bp.route("/dashboard")
 def dashboard() -> Any:
-    return render_template('dashboard.html')
+    """Render the dashboard page."""
+    return render_template("dashboard.html")
