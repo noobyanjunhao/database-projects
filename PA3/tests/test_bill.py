@@ -1,21 +1,23 @@
+"""Tests for bill-related views."""
+
 import datetime
 import json
 import os
 import sqlite3
 import sys
-from typing import Any, Generator, Optional
+from typing import Any, Optional
 
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient
 
+import flaskr.views.bill as bill_module  # pylint: disable=import-error
+import flaskr.views.main as main_module  # pylint: disable=import-error
+import flaskr.views.unit as unit_module  # pylint: disable=import-error
+
 # Ensure project root is on the import path so we can import flaskr
 sys.path.insert(0, os.getcwd())
 
-import flaskr.views.bill as bill_module
-# Import blueprints
-import flaskr.views.main as main_module
-import flaskr.views.unit as unit_module
 
 main_bp = main_module.main_bp
 unit_bp = unit_module.unit_bp
@@ -23,37 +25,48 @@ bill_bp = bill_module.bill_bp
 
 
 class DummyCursor:
+    """Dummy cursor that simulates DB cursor results."""
+
     def __init__(self, rows: list[dict[str, Any]]):
+        """Return all rows."""
         self._rows = rows
 
     def fetchall(self) -> list[dict[str, Any]]:
+        """Return all rows."""
         return self._rows
 
     def fetchone(self) -> Optional[dict[str, Any]]:
+        """Return the first row or None."""
         return self._rows[0] if self._rows else None
 
 
 class DummyDB:
+    """Dummy database connection for simulating queries."""
+
     def __init__(self, rows: list[dict[str, Any]] | None = None, fail: bool = False):
+        """Simulate executing a SQL query."""
         self.rows = rows or []
         self.fail = fail
         self.committed = False
 
     def execute(self, query: str, args: Any = None) -> DummyCursor:
+        """Simulate executing a SQL query."""
+        print(query)
+        print(args)
         if self.fail:
             raise sqlite3.DatabaseError("Simulated DB error")
         return DummyCursor(self.rows)
 
     def commit(self) -> None:
+        """Simulate committing a transaction."""
         self.committed = True
 
 
 @pytest.fixture
-def app() -> Flask:
-    # Point Flask at the real templates folder so render_template() works
+def app() -> Flask:# pylint: disable=redefined-outer-name
+    """Create a Flask app instance for testing."""
     templates_path = os.path.join(os.getcwd(), "flaskr", "templates")
-    app = Flask(__name__, template_folder=templates_path)
-    # Register blueprints for URL building in templates
+    app = Flask(__name__, template_folder=templates_path)# pylint: disable=redefined-outer-name
     app.register_blueprint(main_bp)
     app.register_blueprint(unit_bp)
     app.register_blueprint(bill_bp)
@@ -61,7 +74,8 @@ def app() -> Flask:
 
 
 @pytest.fixture
-def client(app: Flask) -> FlaskClient:
+def client(app: Flask) -> FlaskClient: # pylint: disable=redefined-outer-name
+    """Return a test client for the Flask app."""
     return app.test_client()
 
 
@@ -75,10 +89,9 @@ def client(app: Flask) -> FlaskClient:
     ],
 )
 def test_bill_payment_dashboard_filters(
-    monkeypatch: Any, client: FlaskClient, qs: str
+    monkeypatch: Any, client: FlaskClient, qs: str # pylint: disable=redefined-outer-name
 ) -> None:
-    # Our DummyDB returns both rows every time;
-    # post-filtering always drops the 'sold' row (101) and keeps the other (102).
+    """Test filtering logic on the bill payment dashboard."""
     rows = [
         {
             "apartment_id": 1,
@@ -107,10 +120,10 @@ def test_bill_payment_dashboard_filters(
     assert "101" not in text
 
 
-def test_create_and_detail_and_payment_paths(
-    monkeypatch: Any, client: FlaskClient
+def test_create_and_detail_and_payment_paths( # pylint: disable=too-many-locals,too-many-statements
+    monkeypatch: Any, client: FlaskClient # pylint: disable=redefined-outer-name
 ) -> None:
-    # create-bill not found
+    """Test all create, detail, and payment paths for bills."""
     dummy = DummyDB(rows=[])
     monkeypatch.setattr(bill_module, "get_db", lambda: dummy)
     r1 = client.post(

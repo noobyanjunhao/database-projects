@@ -1,4 +1,5 @@
 """Pytest fixtures for the project."""
+
 import io
 import os
 import sys
@@ -8,8 +9,8 @@ import pytest
 from flask import Flask
 from flask.testing import FlaskClient, FlaskCliRunner
 
-from flaskr import create_app # pylint: disable=import-error
-from flaskr.db import get_db, init_db # pylint: disable=import-error
+from flaskr import create_app  # pylint: disable=import-error
+from flaskr.db import get_db, init_db  # pylint: disable=import-error
 
 # allow top-level imports
 sys.path.insert(0, os.getcwd())
@@ -22,7 +23,7 @@ def app(tmp_path) -> Generator[Flask, None, None]:
     instance.mkdir()
     db_file = tmp_path / "test.sqlite"
 
-    app = create_app() # pylint: disable=redefined-outer-name
+    app = create_app()  # pylint: disable=redefined-outer-name
     app.config.update(
         {
             "TESTING": True,
@@ -53,7 +54,7 @@ def app(tmp_path) -> Generator[Flask, None, None]:
 
 
 @pytest.fixture
-def client(app: Flask) -> FlaskClient: # pylint: disable=redefined-outer-name
+def client(app: Flask) -> FlaskClient:  # pylint: disable=redefined-outer-name
     """Return a test client for making HTTP requests to the app."""
     return app.test_client()
 

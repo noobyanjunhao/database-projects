@@ -1,45 +1,59 @@
+"""Test cases for unit-related views."""
+
 import datetime
-import json
 from typing import Any, Optional
 
 import pytest
 from flask.testing import FlaskClient
 
-from flaskr.views import unit as unit_module
+from flaskr.views import unit as unit_module  # pylint: disable=import-error
 
 
 class DummyCursor:
+    """A dummy cursor for simulating database results."""
+
     def __init__(self, rows: list[dict[str, Any]]):
         self._rows = rows
 
     def fetchall(self) -> list[dict[str, Any]]:
+        """Fetch all rows."""
         return self._rows
 
     def fetchone(self) -> Optional[dict[str, Any]]:
+        """Fetch the first row or None if no rows."""
         return self._rows[0] if self._rows else None
 
 
 class DummyDB:
+    """A dummy database connection."""
+
     def __init__(self, rows: list[dict[str, Any]] | None = None):
         self.rows = rows or []
         self.committed = False
 
-    def execute(self, query: str, args: Any = None) -> DummyCursor:
+    def execute(self, query: str, args: Any = None) -> DummyCursor:  # pylint: disable=unused-argument
+        """Execute a dummy query."""
         return DummyCursor(self.rows)
 
     def commit(self) -> None:
+        """Mark the database as committed."""
         self.committed = True
 
 
-class SeqDB(DummyDB):
+class SeqDB(DummyDB):  # pylint: disable=super-init-not-called
+    """A dummy DB that returns results sequentially."""
+
     def __init__(self, seq: list[Any]):
+        super().__init__([])
         self._seq = list(seq)
         self.committed = False
 
-    def execute(self, query: str, args: Any = None) -> DummyCursor:
+    def execute(self, query: str, args: Any = None) -> DummyCursor:  # pylint: disable=unused-argument
+        """Pop and return the next query result."""
         return DummyCursor(self._seq.pop(0))
 
     def commit(self) -> None:
+        """Mark the database as committed."""
         self.committed = True
 
 
@@ -47,6 +61,7 @@ class SeqDB(DummyDB):
 def test_units_overview_branches(
     monkeypatch: Any, client: FlaskClient, qs: str
 ) -> None:
+    """Test units overview with different query strings."""
     rows = [
         {
             "apartment_id": 1,
@@ -68,6 +83,7 @@ def test_units_overview_branches(
 
 
 def test_unit_detail_and_balance(monkeypatch: Any, client: FlaskClient) -> None:
+    """Test unit detail view and balance calculation."""
     # not found
     db = SeqDB([[]])
     monkeypatch.setattr(unit_module, "get_db", lambda: db)
@@ -108,6 +124,7 @@ def test_unit_detail_and_balance(monkeypatch: Any, client: FlaskClient) -> None:
 
 
 def test_update_lease_paths(monkeypatch: Any, client: FlaskClient) -> None:
+    """Test lease update logic."""
     # missing
     db = DummyDB(rows=[])
     monkeypatch.setattr(unit_module, "get_db", lambda: db)
@@ -131,7 +148,7 @@ def test_update_lease_paths(monkeypatch: Any, client: FlaskClient) -> None:
 
 
 def test_dummydb_commit_sets_flag() -> None:
-    # cover DummyDB.commit()
+    """Test DummyDB commit flag is set."""
     dummy = DummyDB(rows=[])
     assert not dummy.committed
     dummy.commit()

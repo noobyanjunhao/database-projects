@@ -1,6 +1,6 @@
 """Database utility functions for the Flask app."""
 import sqlite3
-from typing import  Optional
+from typing import Optional
 
 import click
 from flask import Flask, current_app, g

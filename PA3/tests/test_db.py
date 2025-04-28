@@ -1,13 +1,17 @@
+"""Unit tests for database-related functionality."""
+
+import io
 import sqlite3
-from typing import Any
+from unittest.mock import patch
 
 import pytest
 from flask import Flask
 
-from flaskr.db import close_db, get_db
+from flaskr.db import close_db, get_db, init_db  # pylint: disable=import-error
 
 
 def test_get_db_returns_same_connection(app: Flask) -> None:
+    """Test that get_db returns the same connection object within app context."""
     with app.app_context():
         c1 = get_db()
         c2 = get_db()
@@ -17,6 +21,7 @@ def test_get_db_returns_same_connection(app: Flask) -> None:
 
 
 def test_close_db_removes_and_closes(app: Flask) -> None:
+    """Test that close_db correctly closes and removes the connection."""
     with app.app_context():
         conn = get_db()
         close_db()
@@ -24,12 +29,8 @@ def test_close_db_removes_and_closes(app: Flask) -> None:
             conn.execute("SELECT 1")
 
 
-import io
-from unittest.mock import patch
-
-
 def test_init_db_with_string_content(app: Flask) -> None:
-    """Test init_db with string content instead of bytes."""
+    """Test init_db when schema.sql returns string content."""
     with app.app_context():
         string_content = "CREATE TABLE test_string (id INTEGER PRIMARY KEY);"
 
@@ -39,7 +40,6 @@ def test_init_db_with_string_content(app: Flask) -> None:
                 io.StringIO("-- Empty seed"),
             ]
 
-            from flaskr.db import init_db
 
             init_db()
 
