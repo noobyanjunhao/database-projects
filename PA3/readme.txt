@@ -6,6 +6,7 @@ cd PA3
 
 step 3:
 python3 --version
+maks sure using 3.10.8, for pylint test
 if no python go install it
 
 step 4: create environment
@@ -38,3 +39,7 @@ mypy tests
 
 
 pip install pylint
+
+
+# if use conda
+python -m pylint flaskr
