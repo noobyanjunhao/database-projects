@@ -5,15 +5,13 @@ import os
 import sys
 from typing import IO, Any, Generator, cast
 
+sys.path.insert(0, os.getcwd()) # pylint: disable=wrong-import-position
 import pytest
 from flask import Flask
 from flask.testing import FlaskClient, FlaskCliRunner
 
 from flaskr import create_app  # pylint: disable=import-error
 from flaskr.db import get_db, init_db  # pylint: disable=import-error
-
-# allow top-level imports
-sys.path.insert(0, os.getcwd())
 
 
 @pytest.fixture
