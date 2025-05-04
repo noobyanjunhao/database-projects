@@ -651,6 +651,11 @@ function validateAndSubmitPayment() {
     return;
   }
 
+  if (parseFloat(amount) < 0) {
+    alert("❌ Payment amount cannot be negative.");
+    return;
+  }
+
   if (remitterName.toLowerCase() !== tenantName.toLowerCase()) {
     alert("❌ Remitter name does not match tenant name. Payment not accepted.");
     return;

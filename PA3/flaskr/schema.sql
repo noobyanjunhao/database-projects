@@ -34,7 +34,7 @@ CREATE TABLE Bill (
   lease_id INTEGER NOT NULL,
   billing_month DATE NOT NULL,
   rent_amount DECIMAL(10,2) NOT NULL,
-  other_charges TEXT,  -- Use TEXT to store JSON-like string
+  other_charges TEXT, 
   balance_used DECIMAL(10,2) NOT NULL,
   total_amount DECIMAL(10,2) NOT NULL,
   sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -44,7 +44,7 @@ CREATE TABLE Bill (
 CREATE TABLE Payment (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   bill_id INTEGER NOT NULL,
-  amount DECIMAL(10,2) NOT NULL,
+  amount DECIMAL(10,2) NOT NULL CHECK (amount >= 0),
   payment_date DATE NOT NULL,
   check_number TEXT,
   remitter_name TEXT NOT NULL,

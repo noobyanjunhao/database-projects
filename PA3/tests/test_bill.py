@@ -88,6 +88,8 @@ def client(app: Flask) -> FlaskClient: # pylint: disable=redefined-outer-name
         "?special=1",
     ],
 )
+
+
 def test_bill_payment_dashboard_filters(
     monkeypatch: Any, client: FlaskClient, qs: str # pylint: disable=redefined-outer-name
 ) -> None:
@@ -250,3 +252,81 @@ def test_create_and_detail_and_payment_paths( # pylint: disable=too-many-locals,
     r10 = client.get("/payment/3")
     assert r10.status_code == 200
     assert "U10" in r10.get_data(as_text=True)
+
+
+def test_create_payment_zero_amount(monkeypatch: Any, client: FlaskClient) -> None: # pylint: disable=redefined-outer-name
+    """Test that creating a payment with amount = 0 is allowed."""
+    dummy = DummyDB()
+    monkeypatch.setattr(bill_module, "get_db", lambda: dummy)
+
+    response = client.post(
+        "/unit/1/create-payment",
+        json={
+            "bill_id": 3,
+            "amount": 0.00,
+            "payment_date": "2025-07-21",
+            "check_number": "CHK000",
+            "remitter_name": "Zero Pay"
+        },
+    )
+
+    assert response.status_code == 200
+    assert dummy.committed
+
+
+def test_create_payment_invalid_amount_value(monkeypatch: Any, client: FlaskClient) -> None: # pylint: disable=redefined-outer-name
+    """Test that non-numeric amount value returns 400 with 'Invalid amount value'."""
+    dummy = DummyDB()
+    monkeypatch.setattr(bill_module, "get_db", lambda: dummy)
+
+    resp = client.post(
+        "/unit/1/create-payment",
+        json={
+            "bill_id": 3,
+            "amount": "abc",
+            "payment_date": "2025-07-21",
+            "check_number": "CHK123",
+            "remitter_name": "InvalidAmount"
+        },
+    )
+
+    assert resp.status_code == 400
+    assert b"Invalid amount value" in resp.data
+
+def test_create_payment_null_amount(monkeypatch: Any, client: FlaskClient) -> None: # pylint: disable=redefined-outer-name
+    """Test that null amount value triggers 'Invalid amount value'."""
+    dummy = DummyDB()
+    monkeypatch.setattr(bill_module, "get_db", lambda: dummy)
+
+    resp = client.post(
+        "/unit/1/create-payment",
+        json={
+            "bill_id": 3,
+            "amount": None,
+            "payment_date": "2025-07-21",
+            "check_number": "CHK456",
+            "remitter_name": "NullAmount"
+        },
+    )
+
+    assert resp.status_code == 400
+    assert b"Invalid amount value" in resp.data
+
+def test_create_payment_negative_amount(monkeypatch: Any, client: FlaskClient) -> None: # pylint: disable=redefined-outer-name
+    """Test that creating a payment with negative amount is rejected."""
+    dummy = DummyDB()
+    monkeypatch.setattr(bill_module, "get_db", lambda: dummy)
+
+    resp = client.post(
+        "/unit/1/create-payment",
+        json={
+            "bill_id": 1,
+            "amount": -100.00,
+            "payment_date": "2025-05-04",
+            "check_number": "CHK001",
+            "remitter_name": "John Doe"
+        },
+    )
+
+    assert resp.status_code == 400
+    assert b"Amount must be non-negative" in resp.data

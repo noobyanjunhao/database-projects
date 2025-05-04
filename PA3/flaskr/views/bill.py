@@ -153,8 +153,18 @@ def create_payment(unit_id: int) -> Tuple[str, int]:
         "check_number",
         "remitter_name",
     ]
-    if not all(field in data and data[field] for field in required_fields):
+    # if not all(field in data and data[field] for field in required_fields):
+    #     return "Missing required fields", 400
+    if not all(field in data for field in required_fields):
         return "Missing required fields", 400
+
+
+    try:
+        amount = float(data["amount"])
+        if amount < 0:
+            return "Amount must be non-negative", 400
+    except (ValueError, TypeError):
+        return "Invalid amount value", 400
 
     try:
         db.execute(
